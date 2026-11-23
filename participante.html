@@ -58,6 +58,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:380px){.welcome-card{padding:18px 12px}.time-value{font-size:34px}.time-label{font-size:8px}.wait-prize{padding:13px}}
 
 @media(max-width:420px){header{gap:11px;padding:17px 10px}.brand{font-size:18px}.honda{font-size:15px}.card{padding:18px}.campaign{font-size:10px}}
+
+.presentation-box{margin:22px 0 16px}.presentation-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#ff737a;font-size:10px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.presentation-slide{min-height:330px;padding:22px 18px;border:1px solid #ffffff25;border-top:4px solid #d71920;border-radius:16px;background:radial-gradient(circle at 85% 10%,#562027 0,transparent 40%),linear-gradient(145deg,#202228,#111216);box-shadow:0 18px 48px #0006;display:flex;flex-direction:column;justify-content:center;text-align:center;animation:slideIn .45s ease}.presentation-art{padding:22px 10px;margin-bottom:24px;border-radius:11px;background:linear-gradient(110deg,#090a0c,#3d1116);font-weight:950;letter-spacing:2px;font-size:clamp(18px,5vw,25px);color:#fff}.presentation-art span{color:#ed1c24}.presentation-kicker{font-size:10px;letter-spacing:2px;color:#ff747b;font-weight:900}.presentation-slide h2{font-size:clamp(28px,6vw,42px);line-height:1.08;margin:12px 0 8px;color:#fff}.presentation-slide h3{font-size:14px;color:#ffb7bb;margin:0 0 12px}.presentation-slide p{font-size:13px;color:#d0d1d6;line-height:1.6;margin:0 auto;max-width:440px}.presentation-progress{height:4px;border-radius:8px;background:#ffffff20;margin-top:13px;overflow:hidden}.presentation-progress span{display:block;height:100%;width:33.333%;background:#e52b35;transition:width .25s}.presentation-footnote{text-align:center;color:#92959c;font-size:10px;margin:10px 0}.hidden{display:none!important}@keyframes slideIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -97,8 +99,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div id="rolePill" class="role-pill">✓ VOCÊ ESTÁ PARTICIPANDO</div>
       <p id="roleCaption" class="role-caption">Status: aguardando início da premiação</p>
     </div>
-    <p class="timer-heading">O SORTEIO COMEÇA EM:</p>
-    <div class="timer" role="timer" aria-live="off">
+    <p class="timer-heading" id="timerHeading">O SORTEIO COMEÇA EM:</p>
+    <div class="timer" id="eventTimer" role="timer" aria-live="off">
       <div class="time-unit"><div id="hours" class="time-value">00</div><div class="time-label">HORAS</div></div>
       <div class="time-sep">:</div>
       <div class="time-unit"><div id="minutes" class="time-value">00</div><div class="time-label">MINUTOS</div></div>
@@ -106,9 +108,21 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div class="time-unit"><div id="seconds" class="time-value">00</div><div class="time-label">SEGUNDOS</div></div>
     </div>
     <p id="timerNote" class="timer-note">Aguardando o administrador definir o horário de início.</p>
-    <div class="wait-status"><strong><i class="live-dot"></i><span id="waitState">AGUARDANDO O INÍCIO DA DINÂMICA</span></strong><span id="waitDescription">A dinâmica começará conforme a programação da organização.</span></div>
-    <div class="wait-prize"><div class="bike-art">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Continue nesta tela para acompanhar a contagem regressiva e as atualizações da organização.</small></div></div>
-    <div class="wait-bottom">AGUARDANDO O INÍCIO DA PREMIAÇÃO</div>
+    <div class="wait-status" id="waitStatus"><strong><i class="live-dot"></i><span id="waitState">AGUARDANDO O INÍCIO DA DINÂMICA</span></strong><span id="waitDescription">A dinâmica começará conforme a programação da organização.</span></div>
+    <section id="presentationBox" class="presentation-box hidden" aria-live="polite">
+      <div class="presentation-top"><span id="presentationPhase">FASE 1 · INICIAÇÃO — JULHO</span><span id="presentationCounter">CARD 1 DE 3</span></div>
+      <article class="presentation-slide">
+        <div class="presentation-art">103 KI <span>×</span> BANCO HONDA</div>
+        <div class="presentation-kicker" id="presentationKicker">APRESENTAÇÃO DO TRIMESTRE</div>
+        <h2 id="presentationTitle">A Largada</h2>
+        <h3 id="presentationSubtitle">Marco zero · posicionamento na pista</h3>
+        <p id="presentationDescription">O ponto de partida da jornada.</p>
+      </article>
+      <div class="presentation-progress"><span id="presentationProgress"></span></div>
+      <p class="presentation-footnote">Apresentação automática · transição a cada 5 segundos</p>
+    </section>
+    <div class="wait-prize" id="waitPrize"><div class="bike-art">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Continue nesta tela para acompanhar a contagem regressiva e as atualizações da organização.</small></div></div>
+    <div class="wait-bottom" id="waitBottom">AGUARDANDO O INÍCIO DA PREMIAÇÃO</div>
   </section>
 <div class="event-footer">24 NOVEMBRO 2026&nbsp; · &nbsp;18H&nbsp; · &nbsp;BAR BRAHMA, SP</div>
 </main>
@@ -117,7 +131,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
-let eventStartAt=null,countdownHandle=null;
+let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null;
 const pad=n=>String(n).padStart(2,'0');
 function showWaiting(attendanceType,fullName){
  const isParticipant=attendanceType==='Participante';
@@ -134,6 +148,43 @@ function showWaiting(attendanceType,fullName){
  waitingScreen.classList.add('active');
  document.querySelector('.event-footer').style.display='none';
  renderCountdown();
+}
+const presentationCards={
+  1:[['A Largada','Marco zero · posicionamento na pista','O ponto de partida da jornada de julho.'],['Base Sólida','Planejamento & estruturação','Definição de metas, mapeamento de processos e estrutura operacional.'],['Foco & Equipe','Alinhamento & preparação','Sinergia operacional, rota estratégica e preparação para superar.']],
+  2:[['Reorganização Estruturada','Otimização de processos','Redimensionamento de fluxos, otimização de tarefas e excelência operacional.'],['Sinergia Operacional','Integração de equipes','Alinhamento coletivo, sincronia operacional e execução integrada.'],['Retomada de Performance','Evolução trimestral','Inflexão da curva, evolução dos indicadores e recuperação estratégica.']],
+  3:[['Cúpula do Trimestre','Uma jornada histórica','Fechamento do ciclo e consolidação da evolução de julho a setembro.'],['A Conquista','Liderança geral e conquista coletiva','Reconhecimento máximo pelo resultado construído em equipe.'],['Bulgarelli + Banco Honda','Em parceria · Recuperação & Inovação','Encerramento institucional da fase de conquista.']]
+};
+function renderPresentationCard(){
+ const cards=presentationCards[currentStage];if(!cards)return;
+ const c=cards[slideIndex];
+ document.getElementById('presentationPhase').textContent=['','FASE 1 · INICIAÇÃO — JULHO','FASE 2 · REESTRUTURAÇÃO — AGOSTO','FASE 3 · CONQUISTA — SETEMBRO'][currentStage];
+ document.getElementById('presentationCounter').textContent='CARD '+(slideIndex+1)+' DE 3';
+ document.getElementById('presentationTitle').textContent=c[0];
+ document.getElementById('presentationSubtitle').textContent=c[1];
+ document.getElementById('presentationDescription').textContent=c[2];
+ document.getElementById('presentationKicker').textContent='103 KI · BANCO HONDA';
+ document.getElementById('presentationProgress').style.width=((slideIndex+1)/3*100)+'%';
+}
+function renderEventStage(){
+ const isPresentation=currentStage>=1&&currentStage<=3;
+ const isAfterPresentation=currentStage>=4;
+ document.getElementById('timerHeading').classList.toggle('hidden',currentStage!==0);
+ document.getElementById('eventTimer').classList.toggle('hidden',currentStage!==0);
+ document.getElementById('timerNote').classList.toggle('hidden',currentStage!==0);
+ document.getElementById('waitPrize').classList.toggle('hidden',currentStage!==0);
+ document.getElementById('waitBottom').classList.toggle('hidden',currentStage!==0);
+ document.getElementById('presentationBox').classList.toggle('hidden',!isPresentation);
+ document.getElementById('waitStatus').classList.toggle('hidden',isPresentation);
+ if(isPresentation){
+   if(slideHandle)clearInterval(slideHandle);
+   slideIndex=0;renderPresentationCard();
+   slideHandle=setInterval(()=>{slideIndex=(slideIndex+1)%3;renderPresentationCard();},5000);
+ }else if(slideHandle){clearInterval(slideHandle);slideHandle=null;}
+ if(isAfterPresentation){
+   document.getElementById('waitStatus').classList.remove('hidden');
+   document.getElementById('waitState').textContent=currentStage===4?'PREPARAÇÃO DO SORTEIO':'SORTEIO EM ANDAMENTO';
+   document.getElementById('waitDescription').textContent=currentStage===4?'As apresentações foram concluídas. A organização está preparando o sorteio.':'Acompanhe o resultado anunciado pela organização.';
+ }
 }
 function renderCountdown(){
  const now=new Date();
@@ -162,7 +213,8 @@ async function loadEventTime(){
  const {data,error}=await db.from('event_settings').select('event_start_time,current_stage').eq('singleton',true).single();
  if(error){document.getElementById('timerNote').textContent='Não foi possível atualizar o horário. Tentando novamente…';return;}
  eventStartAt=data.event_start_time?new Date(data.event_start_time):null;
- renderCountdown();
+ currentStage=Number(data.current_stage||0);
+ renderCountdown();renderEventStage();
 }
 
 cpfInput.addEventListener('input',()=>{let v=cpfInput.value.replace(/\D/g,'').slice(0,11);v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');cpfInput.value=v;});
@@ -185,7 +237,8 @@ form.addEventListener('submit',async ev=>{
 db.channel('public-event-settings')
  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'event_settings',filter:'singleton=eq.true'},payload=>{
   eventStartAt=payload.new.event_start_time?new Date(payload.new.event_start_time):null;
-  renderCountdown();
+  currentStage=Number(payload.new.current_stage||0);
+  renderCountdown();renderEventStage();
  })
  .subscribe();
 </script>
