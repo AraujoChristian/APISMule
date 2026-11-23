@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do Administrador — Banco Honda | Bulgarelli</title>
+<style>
+:root{--red:#c8102e;--black:#111111;--bg:#ffffff;--muted:#555555;--line:#d8d8d8;--green:#16834a}
+*{box-sizing:border-box}body{margin:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:var(--black)}
+header{background:var(--black);color:#ffffff;padding:18px 16px;position:sticky;top:0;z-index:5;border-bottom:5px solid var(--red)}
+.brand{font-weight:800;letter-spacing:.5px}.sub{font-size:11px;color:#ddd;margin-top:4px;letter-spacing:1px}
+.wrap{max-width:980px;margin:auto;padding:16px}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pill{font-size:11px;border-radius:30px;padding:6px 10px;background:var(--red);color:#ffffff}
+nav{display:flex;gap:8px;overflow:auto;padding:12px 0 4px}
+nav button{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:10px;padding:10px 12px;font-weight:700}
+nav button.active{background:var(--red);border-color:var(--red);color:#ffffff}
+h1{font-size:22px;margin:10px 0 6px}h2{font-size:17px;margin:0 0 12px}p{line-height:1.45}
+.muted{color:var(--muted);font-size:13px}.card{background:#ffffff;border:1px solid var(--line);border-top:3px solid var(--red);border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #00000008}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#ffffff;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:10px;padding:12px}.stat strong{font-size:24px;display:block}.stat span{font-size:12px;color:var(--muted)}
+button,.btn{cursor:pointer}.primary{background:var(--red);color:#ffffff;border:0;border-radius:10px;padding:12px 16px;font-weight:700}.secondary{background:white;color:var(--black);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-weight:700}.danger{background:#fff0f1;color:#a20d25;border:1px solid #f2cbd1;border-radius:10px;padding:10px 12px;font-weight:700}
+input[type=text],input[type=time],input[type=file],select{width:100%;padding:12px;border:1px solid #ccd0d6;border-radius:10px;background:white;margin:6px 0 12px;font-size:15px}
+label{font-size:13px;font-weight:700} .row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.notice{padding:12px;border-radius:10px;background:#ffffff;border:1px solid var(--line);border-left:4px solid var(--red);font-size:13px;margin:10px 0}.success{background:#eaf7ef;color:#126638}.warn{background:#fff6e5;color:#805300}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:11px;text-transform:uppercase}
+.tablewrap{overflow:auto}.tag{font-size:11px;border-radius:30px;padding:5px 8px;background:#fce8ec;color:#a20d25;border:1px solid #efb9c4}.tag.gray{background:#eee;color:#555}
+.hidden{display:none!important}.step{display:flex;gap:8px;align-items:center;margin:12px 0;font-weight:700}.num{background:#eee;border-radius:50%;width:25px;height:25px;display:grid;place-items:center}
+footer{text-align:center;color:#888;font-size:11px;padding:22px}
+@media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.grid .stat:last-child{grid-column:span 2}.wrap{padding:12px}.card{padding:14px}h1{font-size:20px}}
+
+/* Redesign Banco Honda | Bulgarelli */
+:root{
+  --red:#d71920;--black:#151515;--bg:#f3f4f6;--muted:#68707b;
+  --line:#e1e4e8;--green:#16834a;--honda-gray:#777
+}
+body{background:var(--bg);color:#171717;font-family:Inter,Arial,Helvetica,sans-serif}
+header{background:linear-gradient(115deg,#111 0%,#202020 72%,#3a1013 100%);padding:20px 18px 17px;border-bottom:5px solid var(--red);box-shadow:0 5px 18px #0002}
+.brand{font-size:20px;letter-spacing:1.4px;font-weight:900}
+.brandline{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.honda-mark{font-weight:900;font-style:italic;color:#fff;font-size:19px;letter-spacing:1px}
+.honda-mark span{color:#ed1c24}
+.brand-divider{height:30px;width:1px;background:#777}
+.sub{font-size:10px;color:#e3e3e3;margin-top:5px;letter-spacing:1.5px}
+.pill{background:var(--red);font-weight:800;letter-spacing:.5px}
+.wrap{max-width:1080px;padding:20px}
+nav{gap:9px;padding:16px 0 8px}
+nav button{border:1px solid #d8dce1;background:#fff;border-radius:9px;padding:11px 15px;font-weight:750;color:#333;transition:.15s}
+nav button.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 4px 10px #d7192030}
+h1{font-size:25px;font-weight:850;letter-spacing:-.5px;margin:12px 0 7px}
+h2{font-size:17px;font-weight:800}
+.muted{color:#68707b}
+.card{border:1px solid #e2e5e9;border-top:3px solid var(--red);border-radius:14px;padding:19px;margin:14px 0;box-shadow:0 5px 18px #11110a08}
+.grid{gap:12px}
+.stat{border:1px solid #e3e6ea;border-left:4px solid var(--red);border-radius:12px;background:linear-gradient(145deg,#fff,#fafafa);padding:15px}
+.stat strong{font-size:27px;font-weight:850}
+.primary{background:linear-gradient(135deg,#e21b2b,#bd1020);border-radius:9px;padding:12px 17px;box-shadow:0 3px 8px #c8102e25}
+.secondary{border:1px solid #d6d9de;border-radius:9px;padding:11px 15px;background:#fff}
+input[type=text],input[type=time],input[type=file],select{border:1px solid #d5d9df;border-radius:9px;padding:13px}
+.notice{border-radius:10px;border-left:4px solid var(--red);background:#fafafa;padding:13px}
+.tag{background:#fff0f1;color:#b20e20;border-color:#f1c4ca;font-weight:750}
+footer{color:#8a9099;padding:26px}
+.winner-card{background:linear-gradient(145deg,#171717,#2a2a2a);color:#fff;border:1px solid #3a3a3a;border-top:4px solid var(--red);border-radius:16px;padding:22px;margin:15px 0;text-align:center}
+.winner-card .eyebrow{font-size:11px;letter-spacing:2px;color:#ffb8be;font-weight:800}
+.winner-number{font-size:64px;line-height:1.05;font-weight:950;color:#fff;margin:10px 0;text-shadow:0 3px 18px #d7192040}
+.winner-name{font-size:19px;font-weight:800}
+.winner-empty{font-size:14px;color:#d0d0d0;padding:12px}
+.public-banner{background:#151515;color:#fff;border-radius:14px;padding:22px;border-bottom:5px solid var(--red);margin:14px 0}
+.public-banner strong{font-size:22px;letter-spacing:1px}
+.public-banner p{color:#ddd;margin-bottom:0}
+@media(max-width:560px){.wrap{padding:12px}.card{padding:15px}.winner-number{font-size:54px}.brand{font-size:17px}}
+
+
+body:not(.is-admin) .wrap{display:none!important}
+#authGate{max-width:460px;margin:8vh auto;padding:22px;background:#fff;border:1px solid #e1e4e8;border-top:4px solid #d71920;border-radius:14px;box-shadow:0 8px 30px #0001}
+#authGate input{width:100%;padding:13px;border:1px solid #d5d9df;border-radius:9px;margin:8px 0 12px}
+#authMessage{font-size:13px;margin-top:12px;line-height:1.4}
+
+</style>
+</head>
+<body>
+<section id="authGate">
+  <div class="honda-mark" style="color:#151515"><span style="color:#d71920">HONDA</span> BANCO</div>
+  <h1>Acesso do administrador</h1>
+  <p class="muted">Entre com o e-mail autorizado. Enviaremos um link de acesso seguro, sem senha.</p>
+  <form id="authForm">
+    <label for="adminEmail">E-mail</label>
+    <input id="adminEmail" type="email" value="christianguilherme457@gmail.com" autocomplete="email" required>
+    <button class="primary" type="submit">Enviar link de acesso</button>
+  </form>
+  <div id="authMessage" class="notice" aria-live="polite">Somente a conta autorizada pode administrar o sorteio.</div>
+</section>
+<header><div class="topline"><div class="brandline">
+<div><div class="honda-mark"><span>HONDA</span> BANCO</div></div>
+<div class="brand-divider"></div>
+<div><div class="brand">BULGARELLI</div><div class="sub">RECUPERAÇÃO &amp; INOVAÇÃO</div></div>
+</div><span class="pill">PAINEL ADMINISTRATIVO</span></div></header>
+<div class="wrap">
+<nav>
+<button class="active" data-tab="inicio">Visão geral</button>
+<button data-tab="lista">Participantes e planilha</button>
+<button data-tab="dinamica">Apresentações</button>
+<button data-tab="sorteio">Sorteio</button>
+<button data-tab="publico">Tela pública</button>
+</nav>
+
+<section id="inicio" class="panel">
+<h1>Painel do administrador</h1><p class="muted">Controle central da dinâmica, conectado ao banco compartilhado.</p>
+<div class="grid">
+<div class="stat"><strong id="statAut">0</strong><span>Previstos na lista oficial</span></div>
+<div class="stat"><strong id="statCad">0</strong><span>Participantes cadastrados</span></div>
+<div class="stat"><strong id="statMissing">0</strong><span>Faltantes</span></div>
+</div>
+<div class="card">
+<h2>Inscrições</h2>
+<div class="row"><span class="muted">Status do formulário público</span><strong class="tag gray" id="registrationStatus">Fechado</strong></div>
+<div class="row">
+<button class="primary" id="openRegistrations">Abrir inscrições</button>
+<button class="secondary" id="closeRegistrations">Encerrar inscrições</button>
+</div>
+<p class="muted">Ao abrir, o formulário da tela pública aceitará nomes que constem na lista oficial importada. O número interno fica visível somente no painel administrativo.</p>
+</div>
+<div class="card">
+<h2>Liberação dos números</h2>
+<p class="muted">Os participantes só verão seus números quando você liberar todos simultaneamente.</p>
+<div class="row"><strong id="numberReleaseStatus" class="tag gray">Números ocultos</strong><button class="primary" id="releaseNumbers">Liberar números para todos</button></div>
+</div>
+<div class="card">
+<h2>Horário previsto de início</h2>
+<label for="startTime">Defina o horário</label><input id="startTime" type="time" value="20:30">
+<div class="row"><span class="muted">Contagem regressiva informativa</span><strong id="countdown">Defina o horário</strong></div>
+<div class="notice">Quando chegar a zero, a dinâmica não começa sozinha. Você ainda deverá pressionar “Iniciar dinâmica”.</div>
+</div>
+<div class="card">
+<h2>Controle da dinâmica</h2><div class="row"><span id="stageLabel">Aguardando início</span><span class="tag gray" id="stageCount">Etapa 0</span></div>
+<p class="muted">Avance e volte manualmente. Nada é exibido automaticamente.</p>
+<button class="primary" id="startBtn">Iniciar dinâmica</button>
+<div class="row" style="margin-top:10px"><button class="secondary" id="prevBtn">Voltar etapa</button><button class="primary" id="nextBtn">Próxima etapa</button></div>
+</div>
+<div class="notice">Dados sincronizados pelo Supabase. O acesso administrativo exige autenticação.</div>
+</section>
+
+<section id="lista" class="panel hidden">
+<h1>Participantes e numeração</h1><p class="muted">A planilha contém somente nomes completos. A numeração interna é atribuída pela ordem de cadastro e nunca aparece na área pública.</p>
+<div class="card">
+<div class="step"><span class="num">1</span> Enviar planilha para conferência</div>
+<label for="xlsx">Arquivo Excel (.xlsx)</label><input type="file" id="xlsx" accept=".xlsx">
+<div class="notice">A planilha deve ter uma coluna com os nomes completos. Se houver cabeçalho, use “Nome” na primeira linha.</div>
+<div id="preview" class="hidden">
+<div class="row"><strong>Conferência da planilha</strong><span class="tag" id="fileName">Arquivo</span></div>
+<div class="grid" style="margin:10px 0"><div class="stat"><strong id="previewCount">0</strong><span>Nomes encontrados</span></div><div class="stat"><strong id="duplicateCount">0</strong><span>Duplicados</span></div><div class="stat"><strong id="errorCount">0</strong><span>Erros</span></div></div>
+<div class="tablewrap"><table><thead><tr><th>Prévia dos nomes</th></tr></thead><tbody id="previewRows"></tbody></table></div>
+<div class="step"><span class="num">2</span> Confirmar importação</div>
+<button class="primary" id="confirmImport">Confirmar importação</button>
+</div>
+<div id="importMsg" class="notice hidden"></div>
+<div class="row" style="margin-top:12px"><strong id="listStatus">Nenhuma planilha importada</strong><button class="secondary" id="resetList">Limpar lista (teste)</button></div>
+</div>
+<div class="card">
+<h2>Cadastros registrados neste aparelho</h2>
+<div class="row"><span class="muted">Busca por nome ou número</span><input id="search" type="text" placeholder="Pesquisar..." style="max-width:220px"></div>
+<div class="tablewrap"><table><thead><tr><th>Nº</th><th>Nome</th><th>Tipo</th><th>Horário</th></tr></thead><tbody id="peopleRows"><tr><td colspan="4" class="muted">Nenhum cadastro ainda.</td></tr></tbody></table></div>
+</div>
+<div class="card">
+<h2>Adicionar participante de última hora</h2>
+<p class="muted">Use esta área quando uma pessoa for autorizada a participar, mas não estiver na planilha original. Esta inclusão é feita somente pelo administrador.</p>
+<label for="lateName">Nome completo do participante</label>
+<input id="lateName" type="text" placeholder="Digite o nome completo">
+<button class="primary" id="addLate">Adicionar participante</button>
+<div id="lateResult" class="notice hidden"></div>
+<div class="notice warn">Inclusões extraordinárias são registradas na lista oficial compartilhada e protegidas por autenticação.</div>
+</div>
+</section>
+
+<section id="dinamica" class="panel hidden">
+<h1>Apresentações do trimestre</h1><p class="muted">O administrador libera uma etapa por vez usando os controles. O público veria somente a etapa liberada.</p>
+<div class="card">
+<div class="row"><h2>Etapa atual</h2><span class="tag" id="presentationTag">Aguardando</span></div>
+<div id="presentationContent" class="notice">Nenhuma apresentação liberada.</div>
+<div class="row"><button class="secondary" id="presBack">Voltar etapa</button><button class="primary" id="presNext">Próxima etapa</button></div>
+</div>
+</section>
+
+<section id="sorteio" class="panel hidden">
+<h1>Etapa do sorteio</h1><p class="muted">Referência da dinâmica combinada: urna física, número informado pelo administrador e validação no painel.</p>
+<div class="card">
+<h2>Validação do número sorteado</h2>
+<label for="drawNumber">Número anunciado na urna</label><input id="drawNumber" type="text" inputmode="numeric" maxlength="2" placeholder="Ex.: 07">
+<button class="primary" id="validateDraw">Validar número</button><div id="drawResult" class="notice hidden"></div>
+<div id="adminWinner" class="winner-card"><div class="eyebrow">RESULTADO DO SORTEIO</div><div class="winner-empty">Aguardando validação do administrador</div></div>
+<div class="notice">Após validar um número, o resultado aparece aqui e também na prévia da tela pública deste protótipo.</div>
+</div>
+<div class="card"><h2>Controle</h2><button class="secondary" id="backToPresentations">Voltar para as apresentações</button></div>
+</section>
+
+<section id="publico" class="panel hidden">
+<h1>Tela dos participantes</h1>
+<p class="muted">Prévia da experiência pública. Nesta demonstração, a tela é visualizada no mesmo navegador do administrador.</p>
+<div class="public-banner"><strong>BANCO HONDA <span style="color:#ed1c24">×</span> BULGARELLI</strong><p>Dinâmica de reconhecimento · Acompanhe as etapas e o resultado oficial informado pelo administrador.</p></div>
+<div class="card"><div class="row"><h2>Etapa liberada</h2><span class="tag" id="publicStageTag">Aguardando</span></div><div id="publicStage" class="notice">A dinâmica ainda não foi iniciada.</div></div>
+<div class="card" id="registrationCard">
+<h2>Confirme sua participação</h2>
+<p class="muted" id="registrationHelp">As inscrições ainda não foram abertas pela organização.</p>
+<label for="publicName">Nome completo</label>
+<input id="publicName" type="text" placeholder="Digite seu nome completo" autocomplete="name">
+<button class="primary" id="submitRegistration" disabled>Confirmar inscrição</button>
+<div id="registrationMessage" class="notice hidden" aria-live="polite"></div>
+</div>
+<div id="publicWinner" class="winner-card"><div class="eyebrow">NÚMERO GANHADOR</div><div class="winner-empty">O resultado será exibido após a validação.</div></div>
+</section>
+
+<footer>Banco Honda × Bulgarelli · Painel administrativo conectado</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let authorized=[], people=[], pending=[], imported=false, started=false, stage=0, winner=null, registrationsOpen=false;
+const stages=['Aguardando início','Apresentação de julho','Apresentação de agosto','Apresentação de setembro','Preparação do sorteio','Sorteio'];
+function save(){try{localStorage.setItem('bh_demo_v1',JSON.stringify({authorized,people,imported,started,stage,winner,registrationsOpen,startTime:$('startTime').value}))}catch(e){}}
+function load(){try{let d=JSON.parse(localStorage.getItem('bh_demo_v1')||'{}');authorized=d.authorized||[];people=d.people||[];imported=!!d.imported;started=!!d.started;stage=d.stage||0;winner=d.winner||null;registrationsOpen=!!d.registrationsOpen;if(d.startTime)$('startTime').value=d.startTime}catch(e){}}
+function stats(){
+ const registered=people.filter(p=>p.type==='Participante').length;
+ $('statAut').textContent=authorized.length;$('statCad').textContent=registered;
+ $('statMissing').textContent=Math.max(0,authorized.length-registered);
+ $('listStatus').textContent=imported?authorized.length+' nomes importados · lista bloqueada após primeiro cadastro':'Nenhuma planilha importada';
+ renderPeople();renderStage();renderWinner();renderRegistrationState();
+}
+function renderRegistrationState(){
+ $('registrationStatus').textContent=registrationsOpen?'Aberto':'Fechado';
+ $('registrationStatus').className='tag '+(registrationsOpen?'success':'gray');
+ $('registrationHelp').textContent=registrationsOpen
+   ? 'Inscrições abertas. Informe seu nome completo conforme a lista oficial.'
+   : 'As inscrições estão fechadas pela organização.';
+ $('submitRegistration').disabled=!registrationsOpen || !imported;
+ $('publicName').disabled=!registrationsOpen || !imported;
+}
+
+function renderWinner(){
+ const markup = winner
+  ? '<div class="eyebrow">NÚMERO GANHADOR VALIDADO</div><div class="winner-number">'+esc(winner.num)+'</div><div class="winner-name">'+esc(winner.name)+'</div><div style="color:#bdbdbd;font-size:12px;margin-top:8px">Resultado informado pelo administrador</div>'
+  : '<div class="eyebrow">RESULTADO DO SORTEIO</div><div class="winner-empty">Aguardando validação do administrador</div>';
+ $('adminWinner').innerHTML=markup;
+ $('publicWinner').innerHTML=winner
+  ? '<div class="eyebrow">NÚMERO GANHADOR</div><div class="winner-number">'+esc(winner.num)+'</div><div class="winner-name">'+esc(winner.name)+'</div><div style="color:#bdbdbd;font-size:12px;margin-top:8px">GANHADOR VALIDADO</div>'
+  : '<div class="eyebrow">NÚMERO GANHADOR</div><div class="winner-empty">O resultado será exibido após a validação.</div>';
+}
+
+function renderPeople(){let q=$('search').value.toLowerCase();let rows=people.filter(p=>(p.name+' '+(p.num||'')).toLowerCase().includes(q));$('peopleRows').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.num||'—'}</td><td>${esc(p.name)}</td><td><span class="tag ${p.type==='Espectador'?'gray':''}">${p.type}</span></td><td>${p.time}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Nenhum cadastro encontrado.</td></tr>'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderStage(){ $('stageLabel').textContent=stages[stage]||stages[0];$('stageCount').textContent='Etapa '+stage;$('stageCount').className='tag '+(stage?'':'gray');$('stageCount').textContent='Etapa '+stage;
+let content=stage===0?'Nenhuma apresentação liberada.':stage===1?'Apresentação de julho liberada.':stage===2?'Apresentação de agosto liberada.':stage===3?'Apresentação de setembro liberada.':stage===4?'Preparação do sorteio liberada.': 'Etapa do sorteio liberada.';
+$('presentationContent').textContent=content;$('presentationTag').textContent=stage?stages[stage]:'Aguardando';$('publicStage').textContent=content;$('publicStageTag').textContent=stage?stages[stage]:'Aguardando';}
+function advance(n){stage=Math.max(0,Math.min(5,stage+n));save();renderStage()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden')});
+$('startBtn').onclick=()=>{started=true;if(stage===0)stage=1;save();renderStage();$('stageLabel').textContent=stages[stage]};
+$('prevBtn').onclick=()=>advance(-1);$('nextBtn').onclick=()=>advance(1);$('presBack').onclick=()=>advance(-1);$('presNext').onclick=()=>advance(1);
+$('backToPresentations').onclick=()=>{document.querySelector('[data-tab="dinamica"]').click()};
+$('startTime').onchange=save;
+function countdown(){let t=$('startTime').value;if(!t){$('countdown').textContent='Defina o horário';return}let [h,m]=t.split(':').map(Number),now=new Date(),target=new Date();target.setHours(h,m,0,0);if(target<now)target.setDate(target.getDate()+1);let sec=Math.max(0,Math.floor((target-now)/1000));$('countdown').textContent=sec===0?'Horário previsto atingido':`${Math.floor(sec/3600)}h ${Math.floor(sec%3600/60)}min ${sec%60}s`; }
+setInterval(countdown,1000);
+$('search').oninput=renderPeople;
+$('resetList').onclick=()=>{if(people.length){$('importMsg').textContent='A lista não pode ser limpa neste teste depois que já existem cadastros. Use “Limpar dados de demonstração” nas configurações do navegador se quiser reiniciar.';$('importMsg').classList.remove('hidden');return}authorized=[];pending=[];imported=false;save();stats();$('importMsg').classList.add('hidden')};
+$('xlsx').onchange=async e=>{let f=e.target.files[0];if(!f)return;if(started||people.length){alert('A lista está bloqueada porque os cadastros já começaram.');e.target.value='';return}
+try{pending=await readXlsx(f);let cleaned=pending.map(x=>x.trim()).filter(Boolean);let seen=new Set(),dups=0;cleaned.forEach(n=>{let k=n.toLocaleLowerCase('pt-BR');if(seen.has(k))dups++;seen.add(k)});pending=[...new Set(cleaned)];$('fileName').textContent=f.name;$('previewCount').textContent=cleaned.length;$('duplicateCount').textContent=dups;$('errorCount').textContent=0;$('previewRows').innerHTML=cleaned.slice(0,12).map(n=>'<tr><td>'+esc(n)+'</td></tr>').join('')+(cleaned.length>12?'<tr><td class="muted">... e mais '+(cleaned.length-12)+' nomes</td></tr>':'');$('preview').classList.remove('hidden');$('importMsg').classList.add('hidden');}catch(err){alert('Não consegui ler essa planilha. Confira se é um arquivo .xlsx válido com os nomes na primeira coluna. Detalhe: '+err.message)}};
+$('confirmImport').onclick=()=>{if(!pending.length)return;authorized=pending;imported=true;pending=[];save();stats();$('importMsg').textContent='Importação concluída! '+authorized.length+' nomes autorizados carregados.';$('importMsg').className='notice success';$('preview').classList.add('hidden');$('xlsx').value=''};
+$('addLate').onclick=()=>{let name=$('lateName').value.trim();if(!name){alert('Digite o nome completo.');return}if(!imported){alert('Importe e confirme a planilha antes de adicionar participantes.');return}let key=name.toLocaleLowerCase('pt-BR');if(authorized.some(n=>n.toLocaleLowerCase('pt-BR')===key)||people.some(p=>p.name.toLocaleLowerCase('pt-BR')===key)){alert('Esse nome já consta na lista ou já foi cadastrado.');return}let current=people.filter(p=>p.type==='Participante').length;if(current>=99){alert('Limite de 99 participantes atingido.');return}authorized.push(name);let num=String(current+1).padStart(2,'0');people.push({name,type:'Participante',num,time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});started=true;save();stats();$('lateResult').textContent='Participante de última hora adicionado com sucesso. Número interno '+num+' atribuído.';$('lateResult').className='notice success';$('lateResult').classList.remove('hidden');$('lateName').value=''};
+$('openRegistrations').onclick=()=>{
+ if(!imported){alert('Importe e confirme a lista oficial antes de abrir as inscrições.');return}
+ registrationsOpen=true;save();renderRegistrationState();
+};
+$('closeRegistrations').onclick=()=>{registrationsOpen=false;save();renderRegistrationState()};
+$('submitRegistration').onclick=()=>{
+ const name=$('publicName').value.trim();
+ const msg=$('registrationMessage');
+ if(!registrationsOpen){msg.textContent='As inscrições estão fechadas.';msg.className='notice warn';msg.classList.remove('hidden');return}
+ if(!name){msg.textContent='Digite seu nome completo.';msg.className='notice warn';msg.classList.remove('hidden');return}
+ const key=name.toLocaleLowerCase('pt-BR');
+ const official=authorized.find(n=>n.toLocaleLowerCase('pt-BR')===key);
+ if(!official){msg.textContent='Nome não encontrado na lista oficial. Procure a organização.';msg.className='notice warn';msg.classList.remove('hidden');return}
+ if(people.some(p=>p.type==='Participante'&&p.name.toLocaleLowerCase('pt-BR')===key)){
+   msg.textContent='Esta participação já foi confirmada.';msg.className='notice warn';msg.classList.remove('hidden');return
+ }
+ const count=people.filter(p=>p.type==='Participante').length;
+ if(count>=99){msg.textContent='Limite de 99 participantes atingido. Procure a organização.';msg.className='notice warn';msg.classList.remove('hidden');return}
+ const num=String(count+1).padStart(2,'0');
+ people.push({name:official,type:'Participante',num,time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+ started=true;save();stats();
+ msg.textContent='Participação confirmada. Obrigado!';msg.className='notice success';msg.classList.remove('hidden');
+ $('publicName').value='';
+};
+$('validateDraw').onclick=()=>{let n=$('drawNumber').value.trim().padStart(2,'0');let p=people.find(x=>x.num===n);if(p){winner={num:n,name:p.name};save();renderWinner();$('drawResult').textContent='Número '+n+' validado. Ganhador: '+p.name+'. O resultado também está na prévia da tela pública.';$('drawResult').className='notice success';}else{$('drawResult').textContent='Número não localizado entre os participantes cadastrados. Confira a numeração e tente novamente.';$('drawResult').className='notice warn';}$('drawResult').classList.remove('hidden')};
+
+// Minimal XLSX reader using browser ZIP decompression + XML parsing (first worksheet, first column).
+async function readXlsx(file){
+ const buf=await file.arrayBuffer(),dv=new DataView(buf);let eocd=-1;
+ for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-65558);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break}}
+ if(eocd<0)throw Error('Estrutura ZIP não encontrada');
+ const count=dv.getUint16(eocd+10,true),cdOff=dv.getUint32(eocd+16,true);let entries={},p=cdOff;
+ for(let i=0;i<count;i++){if(dv.getUint32(p,true)!==0x02014b50)break;let method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),nlen=dv.getUint16(p+28,true),elen=dv.getUint16(p+30,true),clen=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),name=new TextDecoder().decode(new Uint8Array(buf,p+46,nlen));entries[name]={method,csize,lo};p+=46+nlen+elen+clen}
+ async function get(name){let e=entries[name];if(!e)return null;let o=e.lo,nl=dv.getUint16(o+26,true),el=dv.getUint16(o+28,true),start=o+30+nl+el,bytes=new Uint8Array(buf,start,e.csize);if(e.method===0)return new TextDecoder().decode(bytes);if(e.method===8){let ds=new DecompressionStream('deflate-raw');let out=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();return new TextDecoder().decode(out)}throw Error('Método de compactação não suportado')}
+ let ssText=await get('xl/sharedStrings.xml'),sheet=await get('xl/worksheets/sheet1.xml');if(!sheet)throw Error('Primeira aba não encontrada');let shared=[];if(ssText){let x=new DOMParser().parseFromString(ssText,'text/xml');shared=[...x.getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join(''))}
+ let doc=new DOMParser().parseFromString(sheet,'text/xml');let vals=[...doc.getElementsByTagName('row')].map(row=>{let c=[...row.getElementsByTagName('c')].find(c=>/^A\d+$/.test(c.getAttribute('r')));if(!c)return '';let v=c.getElementsByTagName('v')[0];if(c.getAttribute('t')==='s')return shared[Number(v?.textContent)]||'';if(c.getAttribute('t')==='inlineStr')return [...c.getElementsByTagName('t')].map(t=>t.textContent).join('');return v?.textContent||''}).filter(Boolean);
+ if(vals[0]&&/^(nome|nome completo|participante)$/i.test(vals[0].trim()))vals.shift();return vals;
+}
+load();stats();countdown();renderRegistrationState();
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const SUPABASE_URL = 'https://vctsjrpeypxwxvmzqqpa.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa';
+const ADMIN_EMAIL = 'christianguilherme457@gmail.com';
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const byId = id => document.getElementById(id);
+const say = (message, ok=false) => { const el=byId('authMessage'); el.textContent=message; el.className='notice '+(ok?'success':'warn'); };
+let remoteReady=false, channel=null;
+
+byId('authForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const email=byId('adminEmail').value.trim().toLowerCase();
+  if(email!==ADMIN_EMAIL){say('Este e-mail não está autorizado para administrar o sorteio.');return;}
+  say('Enviando link seguro de acesso…');
+  const options={shouldCreateUser:true};
+  if(location.protocol!=='file:') options.emailRedirectTo=location.href.split('#')[0];
+  const {error}=await db.auth.signInWithOtp({email,options});
+  if(error){say('Não foi possível enviar o link: '+error.message);return;}
+  say('Solicitação enviada. Confira a caixa de entrada e o spam. Abra o link neste mesmo endereço do painel para concluir o acesso.',true);
+});
+
+async function requireAdmin(session){
+  if(!session){document.body.classList.remove('is-admin');return false;}
+  const email=(session.user.email||'').toLowerCase();
+  if(email!==ADMIN_EMAIL){await db.auth.signOut();say('Conta autenticada, mas não autorizada para este painel.');return false;}
+  const {data,error}=await db.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(error||!data){document.body.classList.remove('is-admin');say('Seu e-mail foi autenticado, mas ainda não consta como administrador. Saia e solicite um novo link depois de conferir a autorização.');return false;}
+  document.body.classList.add('is-admin');
+  byId('authGate').classList.add('hidden');
+  await loadRemote();
+  subscribeRealtime();
+  return true;
+}
+
+async function loadRemote(){
+  remoteReady=false;
+  say('Carregando dados compartilhados…',true);
+  const [{data:settings,error:se},{data:authorized,error:ae},{data:regs,error:re}]=await Promise.all([
+    db.from('event_settings').select('*').eq('singleton',true).single(),
+    db.from('authorized_participants').select('id,full_name,active').order('created_at'),
+    db.from('registrations').select('internal_number,created_at,authorized_participants(full_name)').order('internal_number')
+  ]);
+  if(se||ae||re){say('Falha ao carregar o banco: '+[se,ae,re].filter(Boolean).map(x=>x.message).join(' | '));return;}
+  authorized=authorized.filter(x=>x.active).map(x=>x.full_name);
+  people=regs.map(x=>({name:x.authorized_participants.full_name,type:'Participante',num:String(x.internal_number).padStart(2,'0'),time:new Date(x.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}));
+  imported=authorized.length>0;
+  registrationsOpen=!!settings.registrations_open;
+  if(settings.event_start_time){
+    const eventDate=new Date(settings.event_start_time);
+    if(!Number.isNaN(eventDate.getTime())) byId('startTime').value=String(eventDate.getHours()).padStart(2,'0')+':'+String(eventDate.getMinutes()).padStart(2,'0');
+  }
+  byId('numberReleaseStatus').textContent=settings.numbers_released?'Números liberados':'Números ocultos';
+  byId('numberReleaseStatus').className='tag '+(settings.numbers_released?'':'gray');
+  byId('releaseNumbers').disabled=!!settings.numbers_released;
+  byId('releaseNumbers').textContent=settings.numbers_released?'Números já liberados':'Liberar números para todos';
+  stage=settings.current_stage||0;
+  started=stage>0||people.length>0;
+  winner=null;
+  if(settings.winner_number){const w=people.find(x=>Number(x.num)===Number(settings.winner_number));if(w)winner={num:w.num,name:w.name};}
+  stats();renderRegistrationState();renderStage();renderWinner();remoteReady=true;
+  say('Conectado ao banco compartilhado. Participantes e inscrições carregados.',true);
+}
+
+function subscribeRealtime(){
+  if(channel) db.removeChannel(channel);
+  channel=db.channel('banco-honda-admin-sync')
+    .on('postgres_changes',{event:'*',schema:'public',table:'registrations'},loadRemote)
+    .on('postgres_changes',{event:'*',schema:'public',table:'event_settings'},loadRemote)
+    .on('postgres_changes',{event:'*',schema:'public',table:'authorized_participants'},loadRemote)
+    .subscribe();
+}
+
+async function saveSettings(patch){
+  if(!remoteReady) throw new Error('O banco ainda não está conectado.');
+  const {error}=await db.from('event_settings').update({...patch,updated_at:new Date().toISOString()}).eq('singleton',true);
+  if(error) throw error;
+}
+
+// Replace local-only actions with shared database operations.
+byId('confirmImport').onclick=async()=>{
+  if(!pending.length)return;
+  const rows=pending.map(full_name=>({full_name:full_name.trim(),active:true}));
+  const {error}=await db.from('authorized_participants').upsert(rows,{onConflict:'normalized_name'});
+  if(error){byId('importMsg').textContent='Erro na importação: '+error.message;byId('importMsg').className='notice warn';byId('importMsg').classList.remove('hidden');return;}
+  pending=[];byId('preview').classList.add('hidden');byId('xlsx').value='';
+  await loadRemote();byId('importMsg').textContent='Lista oficial importada no banco compartilhado.';byId('importMsg').className='notice success';byId('importMsg').classList.remove('hidden');
+};
+byId('releaseNumbers').onclick=async()=>{if(!confirm('Confirma liberar os números para todos os participantes ao mesmo tempo?'))return;try{await saveSettings({numbers_released:true});await loadRemote();alert('Números liberados para todos os participantes.');}catch(e){alert('Não foi possível liberar: '+e.message)}};
+byId('openRegistrations').onclick=async()=>{try{if(!imported)throw new Error('Importe a lista oficial antes de abrir as inscrições.');await saveSettings({registrations_open:true});registrationsOpen=true;renderRegistrationState();}catch(e){alert(e.message)}};
+byId('closeRegistrations').onclick=async()=>{try{await saveSettings({registrations_open:false});registrationsOpen=false;renderRegistrationState();}catch(e){alert(e.message)}};
+byId('submitRegistration').onclick=async()=>{
+  const name=byId('publicName').value.trim(),msg=byId('registrationMessage');
+  const {error}=await db.rpc('register_event_participant',{p_full_name:name});
+  msg.textContent=error?error.message:'Participação confirmada. Obrigado!';
+  msg.className='notice '+(error?'warn':'success');msg.classList.remove('hidden');
+  if(!error){byId('publicName').value='';await loadRemote();}
+};
+byId('addLate').onclick=async()=>{
+  const name=byId('lateName').value.trim();if(!name){alert('Digite o nome completo.');return;}
+  const {error}=await db.from('authorized_participants').insert({full_name:name,active:true});
+  if(error){byId('lateResult').textContent='Não foi possível adicionar: '+error.message;byId('lateResult').className='notice warn';}
+  else{await loadRemote();byId('lateResult').textContent='Participante incluído na lista oficial compartilhada.';byId('lateResult').className='notice success';byId('lateName').value='';}
+  byId('lateResult').classList.remove('hidden');
+};
+byId('startBtn').onclick=async()=>{try{const next=Math.max(stage,1);await saveSettings({current_stage:next});stage=next;started=true;renderStage();}catch(e){alert(e.message)}};
+async function moveStage(delta){try{const next=Math.max(0,Math.min(5,stage+delta));await saveSettings({current_stage:next});stage=next;renderStage();}catch(e){alert(e.message)}}
+byId('prevBtn').onclick=()=>moveStage(-1);byId('nextBtn').onclick=()=>moveStage(1);byId('presBack').onclick=()=>moveStage(-1);byId('presNext').onclick=()=>moveStage(1);
+byId('validateDraw').onclick=async()=>{
+  const n=Number(byId('drawNumber').value.trim());const p=people.find(x=>Number(x.num)===n);const out=byId('drawResult');
+  if(!p){out.textContent='Número não localizado entre as inscrições confirmadas.';out.className='notice warn';out.classList.remove('hidden');return;}
+  try{await saveSettings({winner_number:n,current_stage:5});winner={num:p.num,name:p.name};stage=5;renderWinner();renderStage();out.textContent='Número '+p.num+' validado. Ganhador: '+p.name+'.';out.className='notice success';out.classList.remove('hidden');}catch(e){out.textContent=e.message;out.className='notice warn';out.classList.remove('hidden');}
+};
+byId('resetList').onclick=()=>alert('A lista compartilhada não pode ser apagada por este botão. Faça alterações administrativas diretamente na lista oficial.');
+byId('startTime').onchange=async()=>{try{const [h,m]=byId('startTime').value.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);await saveSettings({event_start_time:d.toISOString()});}catch(e){alert(e.message)}};
+
+const {data:{session}}=await db.auth.getSession();
+if(session) await requireAdmin(session);
+db.auth.onAuthStateChange(async(_event,session)=>{await requireAdmin(session)});
+</script>
+</body></html>
