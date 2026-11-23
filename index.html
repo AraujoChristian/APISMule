@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151515">
+  <meta name="description" content="Portal oficial da dinâmica Banco Honda × Bulgarelli. Acesse a área do participante ou o painel administrativo.">
+  <title>Banco Honda × Bulgarelli | Portal da dinâmica</title>
+  <style>
+    :root{color-scheme:light;--red:#d71920;--ink:#17191d;--muted:#69717d;--line:#e5e7eb;--surface:#fff;--bg:#f4f5f7}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -15%,#fee9eb 0,transparent 38%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);min-height:100vh}
+    header{background:linear-gradient(115deg,#111 0%,#202020 72%,#3a1013 100%);border-bottom:5px solid var(--red);color:#fff;padding:22px 6%}
+    .brand{max-width:1050px;margin:auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}.honda{font-weight:950;font-style:italic;letter-spacing:1.2px;font-size:22px}.divider{height:34px;border-left:1px solid #777}.company{font-weight:900;letter-spacing:1.5px}.company small{display:block;color:#c7c7c7;font-size:10px;letter-spacing:1.6px;margin-top:4px}
+    main{max-width:1050px;margin:0 auto;padding:64px 22px 40px}.eyebrow{font-size:11px;font-weight:850;letter-spacing:2px;text-transform:uppercase;color:var(--red)}h1{font-size:clamp(34px,6vw,58px);letter-spacing:-2px;line-height:1.03;margin:12px 0 14px;max-width:760px}.intro{font-size:17px;line-height:1.65;color:var(--muted);max-width:690px;margin:0 0 34px}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 12px 34px #1111;min-height:250px}.icon{width:44px;height:44px;border-radius:13px;background:#fff0f1;color:var(--red);display:grid;place-items:center;font-size:21px;font-weight:900}.card h2{font-size:22px;margin:18px 0 8px}.card p{color:var(--muted);line-height:1.6;margin:0 0 22px;flex:1}.link{display:inline-flex;justify-content:center;align-items:center;gap:9px;text-decoration:none;background:var(--red);color:white;border-radius:10px;padding:13px 17px;font-weight:800;transition:transform .15s,box-shadow .15s;box-shadow:0 5px 14px #d7192026}.link:hover{transform:translateY(-1px);box-shadow:0 8px 18px #d7192033}.link.secondary{background:#17191d;box-shadow:none}
+    .note{margin-top:22px;padding:15px 17px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--muted);font-size:13px;line-height:1.55}footer{text-align:center;padding:22px;color:#8b919a;font-size:12px}
+    @media(max-width:680px){main{padding-top:42px}.cards{grid-template-columns:1fr}.card{min-height:0}header{padding:18px 22px}.company{font-size:14px}}
+  </style>
+</head>
+<body>
+  <header><div class="brand"><div class="honda">HONDA</div><div class="divider"></div><div class="company">BULGARELLI<small>RECUPERAÇÃO &amp; INOVAÇÃO</small></div></div></header>
+  <main>
+    <div class="eyebrow">Portal oficial da dinâmica</div>
+    <h1>Banco Honda <span style="color:var(--red)">×</span> Bulgarelli</h1>
+    <p class="intro">Acesse o ambiente correspondente. O painel do participante permite confirmar a inscrição e acompanhar as etapas; o painel administrativo é reservado à organização e protegido por autenticação.</p>
+    <section class="cards" aria-label="Áreas do portal">
+      <article class="card">
+        <div class="icon" aria-hidden="true">01</div>
+        <h2>Área do participante</h2>
+        <p>Confirme sua participação usando o nome completo da lista oficial e acompanhe a dinâmica. Seu número permanece oculto até a liberação simultânea pelo administrador.</p>
+        <a class="link" href="/participante.html">Acessar área do participante <span aria-hidden="true">→</span></a>
+      </article>
+      <article class="card">
+        <div class="icon" aria-hidden="true">02</div>
+        <h2>Painel administrativo</h2>
+        <p>Gerencie a lista oficial, inscrições, etapas, liberação dos números e validação do resultado. O acesso exige autenticação da conta autorizada.</p>
+        <a class="link secondary" href="/admin.html">Acessar painel administrativo <span aria-hidden="true">→</span></a>
+      </article>
+    </section>
+    <div class="note">As informações de inscrição e o andamento da dinâmica são compartilhados em tempo real pelo banco de dados do evento.</div>
+  </main>
+  <footer>Banco Honda × Bulgarelli · Portal da dinâmica</footer>
+</body>
+</html>
