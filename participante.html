@@ -119,9 +119,9 @@ const form=document.getElementById('checkinForm'),nameInput=document.getElementB
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
 let eventStartAt=null,countdownHandle=null;
 const pad=n=>String(n).padStart(2,'0');
-function showWaiting(attendanceType){
+function showWaiting(attendanceType,fullName){
  const isParticipant=attendanceType==='Participante';
- document.getElementById('welcomeRole').textContent=isParticipant?'participante':'espectador';
+ document.getElementById('welcomeRole').textContent=fullName||'participante';
  const pill=document.getElementById('rolePill');
  pill.textContent=isParticipant?'✓ VOCÊ ESTÁ PARTICIPANDO':'✓ VOCÊ ESTÁ COMO ESPECTADOR';
  pill.classList.toggle('spectator',!isParticipant);
@@ -179,7 +179,7 @@ form.addEventListener('submit',async ev=>{
  form.querySelectorAll('input').forEach(el=>el.disabled=true);
  submit.textContent='CHECK-IN REGISTRADO';
  await loadEventTime();
- showWaiting(data?.attendance_type||'Espectador');
+ showWaiting(data?.attendance_type||'Espectador',fullName);
  if(!countdownHandle) countdownHandle=setInterval(renderCountdown,1000);
 });
 db.channel('public-event-settings')
