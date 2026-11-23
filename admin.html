@@ -155,9 +155,9 @@ body:not(.is-admin) .wrap{display:none!important}
 <div class="row" style="margin-top:12px"><strong id="listStatus">Nenhuma planilha importada</strong><button class="secondary" id="resetList">Limpar lista (teste)</button></div>
 </div>
 <div class="card">
-<h2>Cadastros registrados neste aparelho</h2>
-<div class="row"><span class="muted">Busca por nome ou número</span><input id="search" type="text" placeholder="Pesquisar..." style="max-width:220px"></div>
-<div class="tablewrap"><table><thead><tr><th>Nº</th><th>Nome</th><th>Tipo</th><th>Horário</th></tr></thead><tbody id="peopleRows"><tr><td colspan="4" class="muted">Nenhum cadastro ainda.</td></tr></tbody></table></div>
+<h2>Check-ins registrados</h2>
+<div class="row"><span class="muted">Busca por nome, CPF ou número</span><input id="search" type="text" placeholder="Pesquisar..." style="max-width:220px"></div>
+<div class="tablewrap"><table><thead><tr><th>Nº interno</th><th>Nome</th><th>CPF</th><th>Tipo</th><th>Horário</th></tr></thead><tbody id="peopleRows"><tr><td colspan="5" class="muted">Nenhum check-in ainda.</td></tr></tbody></table></div>
 </div>
 <div class="card">
 <h2>Adicionar participante de última hora</h2>
@@ -242,7 +242,7 @@ function renderWinner(){
   : '<div class="eyebrow">NÚMERO GANHADOR</div><div class="winner-empty">O resultado será exibido após a validação.</div>';
 }
 
-function renderPeople(){let q=$('search').value.toLowerCase();let rows=people.filter(p=>(p.name+' '+(p.num||'')).toLowerCase().includes(q));$('peopleRows').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.num||'—'}</td><td>${esc(p.name)}</td><td><span class="tag ${p.type==='Espectador'?'gray':''}">${p.type}</span></td><td>${p.time}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Nenhum cadastro encontrado.</td></tr>'}
+function renderPeople(){let q=$('search').value.toLowerCase();let rows=people.filter(p=>(p.name+' '+(p.cpf||'')+' '+(p.num||'')).toLowerCase().includes(q));$('peopleRows').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.num||'—'}</td><td>${esc(p.name)}</td><td>${esc(p.cpf||'—')}</td><td><span class="tag ${p.type==='Espectador'?'gray':''}">${p.type}</span></td><td>${p.time}</td></tr>`).join(''):'<tr><td colspan="5" class="muted">Nenhum check-in encontrado.</td></tr>'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function renderStage(){ $('stageLabel').textContent=stages[stage]||stages[0];$('stageCount').textContent='Etapa '+stage;$('stageCount').className='tag '+(stage?'':'gray');$('stageCount').textContent='Etapa '+stage;
 let content=stage===0?'Nenhuma apresentação liberada.':stage===1?'Apresentação de julho liberada.':stage===2?'Apresentação de agosto liberada.':stage===3?'Apresentação de setembro liberada.':stage===4?'Preparação do sorteio liberada.': 'Etapa do sorteio liberada.';
@@ -350,14 +350,15 @@ async function requireAdmin(session){
 async function loadRemote(){
   remoteReady=false;
   say('Carregando dados compartilhados…',true);
-  const [{data:settings,error:se},{data:authorized,error:ae},{data:regs,error:re}]=await Promise.all([
+  const [{data:settings,error:se},{data:authorized,error:ae},{data:regs,error:re},{data:checkins,error:ce}]=await Promise.all([
     db.from('event_settings').select('*').eq('singleton',true).single(),
     db.from('authorized_participants').select('id,full_name,active').order('created_at'),
-    db.from('registrations').select('internal_number,created_at,authorized_participants(full_name)').order('internal_number')
+    db.from('registrations').select('internal_number,created_at,authorized_participants(full_name)').order('internal_number'),
+    db.rpc('admin_list_event_checkins')
   ]);
-  if(se||ae||re){say('Falha ao carregar o banco: '+[se,ae,re].filter(Boolean).map(x=>x.message).join(' | '));return;}
+  if(se||ae||re||ce){say('Falha ao carregar o banco: '+[se,ae,re,ce].filter(Boolean).map(x=>x.message).join(' | '));return;}
   authorized=authorized.filter(x=>x.active).map(x=>x.full_name);
-  people=regs.map(x=>({name:x.authorized_participants.full_name,type:'Participante',num:String(x.internal_number).padStart(2,'0'),time:new Date(x.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}));
+  people=(checkins||[]).map(x=>({name:x.full_name,cpf:x.cpf,type:x.attendance_type,num:x.internal_number==null?'':String(x.internal_number).padStart(2,'0'),time:new Date(x.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}));
   imported=authorized.length>0;
   registrationsOpen=!!settings.registrations_open;
   if(settings.event_start_time){
