@@ -31,6 +31,32 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .message{display:none;margin-top:14px;padding:13px;border-radius:9px;background:#17271e;border:1px solid #2f6844;color:#d9f4e2;font-size:13px;line-height:1.5;text-align:center}
 .message.error{display:block;background:#321719;border-color:#79343a;color:#ffdadd}.message.show{display:block}
 .event-footer{text-align:center;color:#8d9097;font-size:10px;letter-spacing:.4px;border-top:1px solid #ffffff1c;margin-top:25px;padding:18px 0 30px}
+
+/* Tela de espera pós-check-in */
+.waiting{display:none}.waiting.active{display:block}
+.success-pill{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 12px;padding:9px 16px;width:max-content;max-width:100%;border:1px solid #367a50;border-radius:30px;background:#14271c;color:#baf2ca;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.waiting-kicker{text-align:center;color:#b8bbc2;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;margin:0 0 16px}
+.welcome-card{padding:20px 18px;text-align:center;background:linear-gradient(145deg,#222428,#17191d);border:1px solid #ffffff24;border-radius:14px;box-shadow:0 12px 32px #0005;margin-bottom:22px}
+.welcome-card h2{font-size:20px;margin:0 0 7px}.welcome-card p{font-size:12px;color:#b9bbc0;margin:0 0 14px}
+.role-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid #34764b;border-radius:30px;background:#153021;color:#a9f0bf;padding:8px 13px;font-size:11px;font-weight:900;letter-spacing:.5px}
+.role-pill.spectator{border-color:#62666e;background:#24262b;color:#e2e3e6}
+.role-caption{font-size:10px!important;color:#9ea1a8!important;margin:8px 0 0!important}
+.timer-heading{text-align:center;color:#ff6b72;font-size:11px;font-weight:900;letter-spacing:1.6px;margin:0 0 10px}
+.timer{display:flex;align-items:center;justify-content:center;gap:clamp(5px,2vw,14px);margin:0 auto 10px}
+.time-unit{min-width:0;text-align:center;flex:1}
+.time-value{font-size:clamp(36px,10vw,58px);font-weight:950;line-height:1;letter-spacing:1px;color:#fff;text-shadow:0 0 22px #ef303b65;font-variant-numeric:tabular-nums}
+.time-label{font-size:9px;color:#9da0a7;letter-spacing:1px;margin-top:8px;text-transform:uppercase}
+.time-sep{font-size:clamp(27px,7vw,42px);font-weight:900;color:#ed3b44;align-self:flex-start;line-height:1.05}
+.timer-note{text-align:center;color:#9699a1;font-size:10px;padding:9px 12px;border:1px solid #ffffff1a;border-radius:20px;background:#ffffff08;margin:0 auto 22px;max-width:100%}
+.wait-status{text-align:center;margin:0 auto 20px}
+.wait-status strong{display:block;font-size:11px;letter-spacing:.6px;color:#f0f0f1}
+.wait-status span{display:block;color:#a9abb1;font-size:10px;line-height:1.5;margin-top:6px}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ed424a;box-shadow:0 0 10px #ed424a;margin-right:7px}
+.wait-prize{border:1px solid #71343a;border-radius:12px;background:linear-gradient(110deg,#351619,#1b1719);padding:16px;display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.bike-art{font-size:36px;line-height:1}.wait-prize strong{font-size:11px;line-height:1.4;display:block}.wait-prize small{display:block;color:#c5b9ba;font-size:10px;margin-top:5px;line-height:1.4}
+.wait-bottom{text-align:center;border:1px solid #ffffff22;border-radius:10px;padding:13px;color:#e4e4e6;font-size:11px;font-weight:800;letter-spacing:.5px;background:#ffffff08}
+@media(max-width:380px){.welcome-card{padding:18px 12px}.time-value{font-size:34px}.time-label{font-size:8px}.wait-prize{padding:13px}}
+
 @media(max-width:420px){header{gap:11px;padding:17px 10px}.brand{font-size:18px}.honda{font-size:15px}.card{padding:18px}.campaign{font-size:10px}}
 </style>
 </head>
@@ -45,7 +71,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <h1>Seja bem-vindo à<br>Cerimônia de Premiação 103KI</h1>
   <div class="campaign">Campanha 02º Trimestre · 103 KI · Bar Brahma</div>
   <p class="subtitle">Para confirmar sua chegada à premiação, informe seus dados abaixo. O cadastro também identifica quem participará do sorteio.</p>
-  <section class="card">
+  <section class="card" id="registrationCard">
     <form id="checkinForm">
       <label for="fullName">Nome completo</label>
       <input id="fullName" type="text" autocomplete="name" maxlength="120" placeholder="Digite seu nome completo" required>
@@ -62,12 +88,83 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div id="message" class="message" role="status" aria-live="polite"></div>
     </form>
   </section>
-  <div class="event-footer">24 NOVEMBRO 2026&nbsp; · &nbsp;18H&nbsp; · &nbsp;BAR BRAHMA, SP</div>
+  <section id="waitingScreen" class="waiting" aria-live="polite">
+    <div class="success-pill"><span>✓</span> CADASTRO CONCLUÍDO</div>
+    <p class="waiting-kicker">PAINEL DO PARTICIPANTE · AGUARDANDO SORTEIO</p>
+    <div class="welcome-card">
+      <h2>Olá, <span id="welcomeRole">participante</span>!</h2>
+      <p>Seu check-in foi realizado com sucesso.</p>
+      <div id="rolePill" class="role-pill">✓ VOCÊ ESTÁ PARTICIPANDO</div>
+      <p id="roleCaption" class="role-caption">Status: aguardando início da premiação</p>
+    </div>
+    <p class="timer-heading">O SORTEIO COMEÇA EM:</p>
+    <div class="timer" role="timer" aria-live="off">
+      <div class="time-unit"><div id="hours" class="time-value">00</div><div class="time-label">HORAS</div></div>
+      <div class="time-sep">:</div>
+      <div class="time-unit"><div id="minutes" class="time-value">00</div><div class="time-label">MINUTOS</div></div>
+      <div class="time-sep">:</div>
+      <div class="time-unit"><div id="seconds" class="time-value">00</div><div class="time-label">SEGUNDOS</div></div>
+    </div>
+    <p id="timerNote" class="timer-note">Aguardando o administrador definir o horário de início.</p>
+    <div class="wait-status"><strong><i class="live-dot"></i><span id="waitState">AGUARDANDO O INÍCIO DA DINÂMICA</span></strong><span id="waitDescription">A dinâmica começará conforme a programação da organização.</span></div>
+    <div class="wait-prize"><div class="bike-art">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Continue nesta tela para acompanhar a contagem regressiva e as atualizações da organização.</small></div></div>
+    <div class="wait-bottom">AGUARDANDO O INÍCIO DA PREMIAÇÃO</div>
+  </section>
+<div class="event-footer">24 NOVEMBRO 2026&nbsp; · &nbsp;18H&nbsp; · &nbsp;BAR BRAHMA, SP</div>
 </main>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
+const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
+let eventStartAt=null,countdownHandle=null;
+const pad=n=>String(n).padStart(2,'0');
+function showWaiting(attendanceType){
+ const isParticipant=attendanceType==='Participante';
+ document.getElementById('welcomeRole').textContent=isParticipant?'participante':'espectador';
+ const pill=document.getElementById('rolePill');
+ pill.textContent=isParticipant?'✓ VOCÊ ESTÁ PARTICIPANDO':'✓ VOCÊ ESTÁ COMO ESPECTADOR';
+ pill.classList.toggle('spectator',!isParticipant);
+ document.getElementById('roleCaption').textContent=isParticipant?'Status: participação no sorteio confirmada':'Status: presença confirmada como espectador';
+ registrationCard.style.display='none';
+ document.querySelector('.pill').style.display='none';
+ document.querySelector('main > h1').style.display='none';
+ document.querySelector('.campaign').style.display='none';
+ document.querySelector('main > .subtitle').style.display='none';
+ waitingScreen.classList.add('active');
+ document.querySelector('.event-footer').style.display='none';
+ renderCountdown();
+}
+function renderCountdown(){
+ const now=new Date();
+ if(!eventStartAt){
+  ['hours','minutes','seconds'].forEach(id=>document.getElementById(id).textContent='--');
+  document.getElementById('timerNote').textContent='Aguardando o administrador definir o horário de início.';
+  document.getElementById('waitState').textContent='AGUARDANDO DEFINIÇÃO DO HORÁRIO';
+  document.getElementById('waitDescription').textContent='O horário será atualizado automaticamente nesta tela.';
+  return;
+ }
+ const remaining=Math.max(0,Math.floor((eventStartAt.getTime()-now.getTime())/1000));
+ const h=Math.floor(remaining/3600),m=Math.floor((remaining%3600)/60),s=remaining%60;
+ document.getElementById('hours').textContent=pad(h);
+ document.getElementById('minutes').textContent=pad(m);
+ document.getElementById('seconds').textContent=pad(s);
+ document.getElementById('timerNote').textContent='Início previsto às '+eventStartAt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' · Definido pelo administrador';
+ if(remaining===0){
+  document.getElementById('waitState').textContent='HORÁRIO PREVISTO ATINGIDO';
+  document.getElementById('waitDescription').textContent='Aguardando a organização iniciar a dinâmica no painel administrativo.';
+ }else{
+  document.getElementById('waitState').textContent='AGUARDANDO O INÍCIO DA DINÂMICA';
+  document.getElementById('waitDescription').textContent='A dinâmica começará conforme a programação da organização.';
+ }
+}
+async function loadEventTime(){
+ const {data,error}=await db.from('event_settings').select('event_start_time,current_stage').eq('singleton',true).single();
+ if(error){document.getElementById('timerNote').textContent='Não foi possível atualizar o horário. Tentando novamente…';return;}
+ eventStartAt=data.event_start_time?new Date(data.event_start_time):null;
+ renderCountdown();
+}
+
 cpfInput.addEventListener('input',()=>{let v=cpfInput.value.replace(/\D/g,'').slice(0,11);v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');cpfInput.value=v;});
 function show(text,error=false){message.textContent=text;message.className='message show'+(error?' error':'');}
 form.addEventListener('submit',async ev=>{
@@ -79,8 +176,17 @@ form.addEventListener('submit',async ev=>{
  submit.disabled=true;submit.textContent='REGISTRANDO CHECK-IN…';message.className='message';
  const {data,error}=await db.rpc('register_event_checkin',{p_full_name:fullName,p_cpf:cpf,p_wants_raffle:choice.value==='yes'});
  if(error){show(error.message||'Não foi possível registrar seu check-in. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
- show('Check-in confirmado! Obrigado pela presença. Dirija-se à equipe de recepção.');
- form.querySelectorAll('input').forEach(el=>el.disabled=true);submit.textContent='CHECK-IN REGISTRADO';
+ form.querySelectorAll('input').forEach(el=>el.disabled=true);
+ submit.textContent='CHECK-IN REGISTRADO';
+ await loadEventTime();
+ showWaiting(data?.attendance_type||'Espectador');
+ if(!countdownHandle) countdownHandle=setInterval(renderCountdown,1000);
 });
+db.channel('public-event-settings')
+ .on('postgres_changes',{event:'UPDATE',schema:'public',table:'event_settings',filter:'singleton=eq.true'},payload=>{
+  eventStartAt=payload.new.event_start_time?new Date(payload.new.event_start_time):null;
+  renderCountdown();
+ })
+ .subscribe();
 </script>
 </body></html>
