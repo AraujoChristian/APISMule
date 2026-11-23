@@ -316,8 +316,7 @@ byId('authForm').addEventListener('submit', async ev => {
   const email=byId('adminEmail').value.trim().toLowerCase();
   if(email!==ADMIN_EMAIL){say('Este e-mail não está autorizado para administrar o sorteio.');return;}
   say('Enviando link seguro de acesso…');
-  const options={shouldCreateUser:true};
-  if(location.protocol!=='file:') options.emailRedirectTo=location.href.split('#')[0];
+  const options={shouldCreateUser:true,emailRedirectTo:'https://apismule.vercel.app/admin.html'};
   const {error}=await db.auth.signInWithOtp({email,options});
   if(error){say('Não foi possível enviar o link: '+error.message);return;}
   say('Solicitação enviada. Confira a caixa de entrada e o spam. Abra o link neste mesmo endereço do painel para concluir o acesso.',true);
