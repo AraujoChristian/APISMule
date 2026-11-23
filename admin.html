@@ -76,6 +76,8 @@ body:not(.is-admin) .wrap{display:none!important}
 
 
 .phase-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}.phase-controls button{min-height:48px}.phase-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.phase-preview-card{background:linear-gradient(145deg,#17191d,#292b30);color:#fff;border:1px solid #444;border-top:4px solid var(--red);border-radius:13px;padding:14px;min-width:0}.phase-preview-art{background:linear-gradient(120deg,#111,#451319);border-radius:8px;padding:15px 8px;text-align:center;font-size:11px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.phase-preview-art span{color:#ed1c24}.phase-preview-card small{color:#ff858b;font-weight:800;letter-spacing:1px}.phase-preview-card h3{font-size:16px;margin:7px 0}.phase-preview-card strong{font-size:11px;color:#ffb8bc}.phase-preview-card p{font-size:12px;color:#d0d0d0;line-height:1.45}@media(max-width:680px){.phase-controls{grid-template-columns:1fr}.phase-preview-grid{grid-template-columns:1fr}}
+
+.phase-preview-image{width:100%;height:190px;object-fit:contain;background:#0d0e11;border-radius:8px;margin-bottom:10px}.asset-upload-label{display:block;margin-top:12px;color:#f3c2c5;font-size:11px}.asset-upload-label input{font-size:11px;padding:7px;background:#fff;color:#222}.phase-preview-card small[id^="assetStatus"]{display:block;color:#c4c6cb;font-size:10px;margin-top:5px}
 </style>
 </head>
 <body>
@@ -215,6 +217,7 @@ body:not(.is-admin) .wrap{display:none!important}
 </div>
 <script>
 const $=id=>document.getElementById(id);
+let presentationAssetVersion=Date.now();
 let authorized=[], people=[], pending=[], imported=false, started=false, stage=0, winner=null, registrationsOpen=false;
 const stages=['Aguardando início','Apresentação de julho','Apresentação de agosto','Apresentação de setembro','Preparação do sorteio','Sorteio'];
 function save(){try{localStorage.setItem('bh_demo_v1',JSON.stringify({authorized,people,imported,started,stage,winner,registrationsOpen,startTime:$('startTime').value}))}catch(e){}}
@@ -261,7 +264,7 @@ function renderStage(){
  $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:'Aguardando';
  const active=stage>=1&&stage<=3?presentationCards[stage]:null;
  $('presentationContent').innerHTML=active
-  ? '<div class="phase-preview-grid">'+active.map((c,i)=>'<article class="phase-preview-card"><div class="phase-preview-art">103 KI <span>×</span> BANCO HONDA</div><small>FLASHCARD '+(i+1)+'</small><h3>'+c[0]+'</h3><strong>'+c[1]+'</strong><p>'+c[2]+'</p></article>').join('')+'</div>'
+  ? '<div class="phase-preview-grid">'+active.map((c,i)=>'<article class="phase-preview-card"><img class="phase-preview-image" src="https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+stage+'/card-'+(i+1)+'?v='+presentationAssetVersion+'" alt="Imagem do flashcard '+(i+1)+'" onerror="this.style.display=\'none\'"><div class="phase-preview-art">103 KI <span>×</span> BANCO HONDA</div><small>FLASHCARD '+(i+1)+'</small><h3>'+c[0]+'</h3><strong>'+c[1]+'</strong><p>'+c[2]+'</p><label class="asset-upload-label">Imagem deste flashcard<input type="file" class="presentation-upload" data-phase="'+stage+'" data-card="'+(i+1)+'" accept="image/jpeg,image/png,image/webp"></label><small id="assetStatus-'+stage+'-'+(i+1)+'">Imagem ainda não enviada</small></article>').join('')+'</div>'
   : '<div class="notice">'+content+'</div>';
  $('publicStage').textContent=content;
  $('publicStageTag').textContent=stage?stages[stage]:'Aguardando';
@@ -382,6 +385,24 @@ async function saveSettings(patch) {
   if(!remoteReady) throw new Error('O banco ainda não está conectado.');
   await api('save_settings',patch);
 }
+byId('presentationContent').addEventListener('change',async ev=>{
+ const input=ev.target.closest('.presentation-upload');
+ if(!input||!input.files||!input.files[0])return;
+ const file=input.files[0],phase=Number(input.dataset.phase),card=Number(input.dataset.card);
+ const status=byId('assetStatus-'+phase+'-'+card);
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)){status.textContent='Formato não aceito. Use JPG, PNG ou WEBP.';return;}
+ if(file.size>6*1024*1024){status.textContent='Arquivo acima de 6 MB.';return;}
+ status.textContent='Enviando imagem…';
+ try{
+  const buffer=await file.arrayBuffer(),bytes=new Uint8Array(buffer);
+  let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  await api('upload_presentation_asset',{phase,card,contentType:file.type,base64:btoa(binary)});
+  presentationAssetVersion=Date.now();
+  status.textContent='Imagem enviada e publicada.';
+  renderStage();
+ }catch(error){status.textContent='Falha no envio: '+error.message;}
+ input.value='';
+});
 byId('confirmImport').onclick=async()=>{
   if(!pending.length)return;
   try{
