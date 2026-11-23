@@ -60,6 +60,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:420px){header{gap:11px;padding:17px 10px}.brand{font-size:18px}.honda{font-size:15px}.card{padding:18px}.campaign{font-size:10px}}
 
 .presentation-box{margin:22px 0 16px}.presentation-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#ff737a;font-size:10px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.presentation-slide{min-height:330px;padding:22px 18px;border:1px solid #ffffff25;border-top:4px solid #d71920;border-radius:16px;background:radial-gradient(circle at 85% 10%,#562027 0,transparent 40%),linear-gradient(145deg,#202228,#111216);box-shadow:0 18px 48px #0006;display:flex;flex-direction:column;justify-content:center;text-align:center;animation:slideIn .45s ease}.presentation-art{padding:22px 10px;margin-bottom:24px;border-radius:11px;background:linear-gradient(110deg,#090a0c,#3d1116);font-weight:950;letter-spacing:2px;font-size:clamp(18px,5vw,25px);color:#fff}.presentation-art span{color:#ed1c24}.presentation-kicker{font-size:10px;letter-spacing:2px;color:#ff747b;font-weight:900}.presentation-slide h2{font-size:clamp(28px,6vw,42px);line-height:1.08;margin:12px 0 8px;color:#fff}.presentation-slide h3{font-size:14px;color:#ffb7bb;margin:0 0 12px}.presentation-slide p{font-size:13px;color:#d0d1d6;line-height:1.6;margin:0 auto;max-width:440px}.presentation-progress{height:4px;border-radius:8px;background:#ffffff20;margin-top:13px;overflow:hidden}.presentation-progress span{display:block;height:100%;width:33.333%;background:#e52b35;transition:width .25s}.presentation-footnote{text-align:center;color:#92959c;font-size:10px;margin:10px 0}.hidden{display:none!important}@keyframes slideIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.presentation-image{display:block;width:100%;max-height:390px;object-fit:contain;border-radius:10px;background:#0d0e11;margin:0 auto 18px}.presentation-image.hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -112,6 +114,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <section id="presentationBox" class="presentation-box hidden" aria-live="polite">
       <div class="presentation-top"><span id="presentationPhase">FASE 1 · INICIAÇÃO — JULHO</span><span id="presentationCounter">CARD 1 DE 3</span></div>
       <article class="presentation-slide">
+        <img id="presentationImage" class="presentation-image hidden" alt="Imagem da apresentação">
         <div class="presentation-art">103 KI <span>×</span> BANCO HONDA</div>
         <div class="presentation-kicker" id="presentationKicker">APRESENTAÇÃO DO TRIMESTRE</div>
         <h2 id="presentationTitle">A Largada</h2>
@@ -132,6 +135,7 @@ const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
 let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null;
+const presentationAssetVersion=Date.now();
 const pad=n=>String(n).padStart(2,'0');
 function showWaiting(attendanceType,fullName){
  const isParticipant=attendanceType==='Participante';
@@ -163,6 +167,11 @@ function renderPresentationCard(){
  document.getElementById('presentationSubtitle').textContent=c[1];
  document.getElementById('presentationDescription').textContent=c[2];
  document.getElementById('presentationKicker').textContent='103 KI · BANCO HONDA';
+ const image=document.getElementById('presentationImage');
+ image.classList.add('hidden');
+ image.onload=()=>image.classList.remove('hidden');
+ image.onerror=()=>image.classList.add('hidden');
+ image.src='https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+currentStage+'/card-'+(slideIndex+1)+'?v='+presentationAssetVersion;
  document.getElementById('presentationProgress').style.width=((slideIndex+1)/3*100)+'%';
 }
 function renderEventStage(){
