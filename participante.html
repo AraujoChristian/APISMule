@@ -1,47 +1,86 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Participante | Banco Honda × Bulgarelli</title>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111111">
+<title>Check-in | Cerimônia de Premiação 103KI</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#431216,#111216 60%);color:#f7f7f8;font:16px Arial,sans-serif;min-height:100vh}header{padding:22px 6%;background:#090a0c;border-bottom:1px solid #ffffff25;display:flex;gap:20px;align-items:center;flex-wrap:wrap}.h{font-weight:900;font-size:25px;letter-spacing:2px}.b{font:bold 22px Georgia}.b small{display:block;font:11px Arial;color:#ddd}.sep{height:38px;border-left:1px solid #777}main{max-width:850px;margin:45px auto;padding:0 20px}.tag,.ey{color:#ff666d;letter-spacing:2px;text-transform:uppercase;font-size:12px;font-weight:bold}h1{font-size:clamp(32px,6vw,55px);line-height:1.05;margin:12px 0}p{color:#c6c8ce;line-height:1.6}.box{margin-top:25px;padding:30px;background:#202228;border:1px solid #ffffff20;border-radius:18px}input{width:100%;padding:15px;border-radius:8px;border:1px solid #555;background:#111318;color:white;font-size:16px;margin:12px 0}button{background:#d71920;color:white;border:0;padding:14px 20px;border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.num{font-size:85px;font-weight:900;letter-spacing:4px}.red{color:#ff555d}.hidden{display:none}.step{display:inline-block;padding:12px 15px;margin:5px;background:#ffffff0d;border-radius:9px;border:1px solid #ffffff18}.muted{color:#aeb2bb}.msg{margin-top:14px;padding:12px;border-radius:8px;background:#ffffff10;line-height:1.5}footer{text-align:center;color:#777;padding:35px;font-size:12px}
-</style></head><body>
-<header><div class="h">HONDA</div><div class="sep"></div><div class="b">Bulgarelli<small>Recuperação &amp; Inovação</small></div><span class="tag">Experiência do participante</span></header>
-<main><div class="ey">Participação no evento</div><h1>Seu número começa <span class="red">aqui.</span></h1><p>Informe seu nome completo conforme a lista oficial. Seu número será atribuído pela ordem de cadastro e ficará oculto até a liberação simultânea pelo administrador.</p>
-<section class="box" id="registrationBox"><label for="nome">Nome completo</label><input id="nome" autocomplete="name" placeholder="Digite seu nome completo"><button id="submit">Confirmar participação</button><div id="message" class="msg" role="status">Conectando ao evento…</div></section>
-<section class="box hidden" id="numberBox"><div class="ey">Cadastro confirmado</div><h2>Você está participando!</h2><div class="muted">SEU NÚMERO</div><div class="num" id="numero">—</div><p>Guarde seu número. Acompanhe a apresentação e o sorteio físico.</p></section>
-<section class="box"><div class="ey">Acompanhe a dinâmica</div><h2 id="stageTitle">Aguardando início</h2><p id="stageText">A apresentação será atualizada por aqui em tempo real.</p><div id="winner" class="msg hidden"></div></section>
-</main><footer>Banco Honda × Bulgarelli · Painel do participante</footer>
+:root{--red:#d71920;--red2:#ff424a;--bg:#0b0c0e;--panel:#17191d;--line:#34363b;--muted:#a9abb1}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 90% 0,#351013 0,transparent 42%),radial-gradient(ellipse at 0 20%,#242424 0,transparent 38%),var(--bg);color:#f7f7f8;font:15px Inter,Arial,sans-serif}
+header{padding:20px 22px;border-bottom:1px solid #ffffff20;background:#08090beF;display:flex;align-items:center;justify-content:center;gap:18px}
+.brand{font-weight:900;font-size:21px;letter-spacing:-.5px}.brand small{display:block;font-size:9px;letter-spacing:1.3px;color:#b9bbc0;font-weight:500;margin-top:3px}.partner{font-size:10px;color:#aaa;text-align:center;letter-spacing:1px}.honda{font-weight:900;font-size:17px;letter-spacing:1px;color:#fff}.divider{height:34px;border-left:1px solid #777}
+main{width:min(100% - 28px,540px);margin:32px auto 0}.eyebrow{text-align:center;color:#ff7278;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.pill{width:max-content;max-width:100%;margin:0 auto 18px;padding:9px 18px;border:1px solid #9b343a;border-radius:30px;background:#3b171a;color:#fff;font-size:10px;letter-spacing:1px;text-align:center;box-shadow:0 0 24px #d7192030}
+h1{text-align:center;font-size:clamp(26px,6vw,36px);line-height:1.12;margin:0 0 12px;font-weight:850;letter-spacing:-.8px}
+.subtitle{text-align:center;color:#c1c2c7;font-size:13px;line-height:1.55;margin:0 auto 23px;max-width:440px}
+.campaign{text-align:center;color:#a9abb1;font-size:11px;border:1px solid #ffffff1c;border-radius:20px;padding:7px 12px;width:max-content;max-width:100%;margin:0 auto 22px}
+.card{padding:22px;background:linear-gradient(145deg,#1b1d21,#131518);border:1px solid #ffffff20;border-radius:16px;box-shadow:0 18px 50px #0006}
+label{display:block;font-size:12px;font-weight:700;margin:0 0 7px}
+input[type=text],input[type=tel]{width:100%;padding:14px 14px;border:1px solid #654044;border-radius:9px;background:#101215;color:white;font-size:15px;outline:none;margin-bottom:16px}
+input:focus{border-color:var(--red2);box-shadow:0 0 0 3px #d7192025}input::placeholder{color:#777b83}
+.choice-title{font-size:12px;font-weight:700;margin:0 0 9px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.choice{position:relative;display:flex;align-items:center;gap:10px;min-height:58px;padding:11px;border:1px solid #45474c;border-radius:10px;background:#202226;cursor:pointer}
+.choice:has(input:checked){border-color:#df333b;background:#381a1d;box-shadow:inset 0 0 0 1px #d7192035}
+.choice input{accent-color:#e52b35;width:17px;height:17px;margin:0}
+.choice strong{display:block;font-size:13px}.choice small{display:block;color:#b6b7bc;font-size:10px;line-height:1.3;margin-top:3px}
+.prize{display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #743237;border-radius:9px;background:linear-gradient(90deg,#351619,#201719);margin:0 0 16px}
+.prize-icon{font-size:24px}.prize strong{font-size:11px;letter-spacing:.2px}.prize small{display:block;color:#d3bfc0;font-size:10px;margin-top:3px}
+button{width:100%;border:0;border-radius:9px;padding:15px;background:linear-gradient(100deg,#ed3039,#bd101b);color:#fff;font-size:13px;font-weight:900;letter-spacing:.5px;box-shadow:0 5px 18px #d7192050;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.hint{text-align:center;color:#92959c;font-size:10px;margin:9px 0 0}
+.message{display:none;margin-top:14px;padding:13px;border-radius:9px;background:#17271e;border:1px solid #2f6844;color:#d9f4e2;font-size:13px;line-height:1.5;text-align:center}
+.message.error{display:block;background:#321719;border-color:#79343a;color:#ffdadd}.message.show{display:block}
+.event-footer{text-align:center;color:#8d9097;font-size:10px;letter-spacing:.4px;border-top:1px solid #ffffff1c;margin-top:25px;padding:18px 0 30px}
+@media(max-width:420px){header{gap:11px;padding:17px 10px}.brand{font-size:18px}.honda{font-size:15px}.card{padding:18px}.campaign{font-size:10px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Bulgarelli<small>RECUPERAÇÃO &amp; INOVAÇÃO</small></div>
+  <div class="divider"></div>
+  <div><div class="partner">EM PARCERIA COM</div><div class="honda">HONDA BANCO</div></div>
+</header>
+<main>
+  <div class="pill">PAINEL DO PARTICIPANTE · CHECK-IN</div>
+  <h1>Seja bem-vindo à<br>Cerimônia de Premiação 103KI</h1>
+  <div class="campaign">Campanha 02º Trimestre · 103 KI · Bar Brahma</div>
+  <p class="subtitle">Para confirmar sua chegada à premiação, informe seus dados abaixo. O cadastro também identifica quem participará do sorteio.</p>
+  <section class="card">
+    <form id="checkinForm">
+      <label for="fullName">Nome completo</label>
+      <input id="fullName" type="text" autocomplete="name" maxlength="120" placeholder="Digite seu nome completo" required>
+      <label for="cpf">CPF</label>
+      <input id="cpf" type="tel" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required>
+      <p class="choice-title">Você está participando do sorteio?</p>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="raffle" value="yes" required><span><strong>SIM</strong><small>Sorteio · 2 motos Honda Elite 125</small></span></label>
+        <label class="choice"><input type="radio" name="raffle" value="no"><span><strong>NÃO</strong><small>Somente espectador</small></span></label>
+      </div>
+      <div class="prize"><div class="prize-icon">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Participação sujeita à lista oficial da organização.</small></div></div>
+      <button id="submit" type="submit">CONFIRMAR CHEGADA&nbsp; →</button>
+      <p class="hint">Ao confirmar, seu check-in será registrado.</p>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+  <div class="event-footer">24 NOVEMBRO 2026&nbsp; · &nbsp;18H&nbsp; · &nbsp;BAR BRAHMA, SP</div>
+</main>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
-const $=id=>document.getElementById(id);let channel=null,registeredName=sessionStorage.getItem('bh_registered_name')||'';
-if(registeredName){$('nome').value=registeredName;$('nome').disabled=true;$('submit').classList.add('hidden');}
-const stages=['Aguardando início','Apresentação de julho','Apresentação de agosto','Apresentação de setembro','Preparação do sorteio','Sorteio'];
-function message(t,kind=''){ $('message').textContent=t;$('message').style.borderLeft=kind==='error'?'4px solid #ff555d':kind==='ok'?'4px solid #31b56b':'4px solid #888'; }
-async function revealIfAllowed(settings){
- if(!settings.numbers_released||!registeredName)return;
- const {data,error}=await db.rpc('register_event_participant',{p_full_name:registeredName});
- if(error){message(error.message,'error');return;}
- if(data?.number!=null){$('numero').textContent=String(data.number).padStart(2,'0');$('numberBox').classList.remove('hidden');$('registrationBox').classList.add('hidden');}
-}
-async function refresh(){
- const {data:s,error}=await db.from('event_settings').select('registrations_open,current_stage,winner_number,numbers_released').eq('singleton',true).single();
- if(error){message('Não foi possível conectar ao evento: '+error.message,'error');return;}
- $('submit').disabled=false;
- $('submit').textContent=s.registrations_open?'Confirmar participação':'Consultar participação / número';
- if(!registeredName)message(s.registrations_open?'Inscrições abertas. Digite seu nome para participar.':'Inscrições fechadas. Se você já se cadastrou, informe o mesmo nome para consultar o número após a liberação.');
- else message('Cadastro confirmado. Seu número continuará oculto até a liberação oficial.', 'ok');
- $('stageTitle').textContent=stages[s.current_stage||0]||stages[0];
- $('stageText').textContent=s.current_stage>=5?'Sorteio físico em andamento. Acompanhe o resultado anunciado pelo administrador.':'As atualizações da apresentação aparecerão automaticamente nesta tela.';
- if(s.winner_number){$('winner').textContent='Número vencedor anunciado: '+String(s.winner_number).padStart(2,'0');$('winner').classList.remove('hidden');}
- await revealIfAllowed(s);
-}
-$('submit').addEventListener('click',async()=>{
- const name=$('nome').value.trim();if(name.length<3){message('Informe seu nome completo.','error');return;}
- $('submit').disabled=true;message('Confirmando sua participação…');
- const {error}=await db.rpc('register_event_participant',{p_full_name:name});
- if(error){message(error.message,'error');$('submit').disabled=false;return;}
- registeredName=name;sessionStorage.setItem('bh_registered_name',name);message('Cadastro confirmado! Seu número ficará oculto até a liberação geral.','ok');
- $('nome').disabled=true;$('submit').classList.add('hidden');await refresh();
+const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
+cpfInput.addEventListener('input',()=>{let v=cpfInput.value.replace(/\D/g,'').slice(0,11);v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');cpfInput.value=v;});
+function show(text,error=false){message.textContent=text;message.className='message show'+(error?' error':'');}
+form.addEventListener('submit',async ev=>{
+ ev.preventDefault();
+ const fullName=nameInput.value.trim(),cpf=cpfInput.value.replace(/\D/g,''),choice=form.querySelector('input[name="raffle"]:checked');
+ if(fullName.length<3){show('Informe seu nome completo.',true);return;}
+ if(cpf.length!==11){show('Confira o CPF informado.',true);return;}
+ if(!choice){show('Selecione SIM ou NÃO para o sorteio.',true);return;}
+ submit.disabled=true;submit.textContent='REGISTRANDO CHECK-IN…';message.className='message';
+ const {data,error}=await db.rpc('register_event_checkin',{p_full_name:fullName,p_cpf:cpf,p_wants_raffle:choice.value==='yes'});
+ if(error){show(error.message||'Não foi possível registrar seu check-in. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
+ show('Check-in confirmado! Obrigado pela presença. Dirija-se à equipe de recepção.');
+ form.querySelectorAll('input').forEach(el=>el.disabled=true);submit.textContent='CHECK-IN REGISTRADO';
 });
-await refresh();
-channel=db.channel('banco-honda-participant-sync').on('postgres_changes',{event:'*',schema:'public',table:'event_settings'},refresh).subscribe();
-</script></body></html>
+</script>
+</body></html>
