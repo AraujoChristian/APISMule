@@ -80,13 +80,8 @@ body:not(.is-admin) .wrap{display:none!important}
 <section id="authGate">
   <div class="honda-mark" style="color:#151515"><span style="color:#d71920">HONDA</span> BANCO</div>
   <h1>Acesso do administrador</h1>
-  <p class="muted">Informe seu e-mail autorizado. Enviaremos um link de acesso seguro; não é necessário cadastrar ou digitar senha.</p>
-  <form id="authForm">
-    <label for="adminEmail">E-mail</label>
-    <input id="adminEmail" type="email" value="christianguilherme457@gmail.com" autocomplete="email" required>
-    <button class="primary" type="submit">Enviar link de acesso</button>
-  </form>
-  <div id="authMessage" class="notice" aria-live="polite">O link será enviado somente para o e-mail autorizado.</div>
+  <p class="muted">Este painel é privado. Abra o link exclusivo fornecido pela organização para validar seu acesso.</p>
+  <div id="authMessage" class="notice" aria-live="polite">Aguardando validação do link administrativo…</div>
 </section>
 <header><div class="topline"><div class="brandline">
 <div><div class="honda-mark"><span>HONDA</span> BANCO</div></div>
@@ -302,63 +297,41 @@ async function readXlsx(file){
 load();stats();countdown();renderRegistrationState();
 </script>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const SUPABASE_URL = 'https://vctsjrpeypxwxvmzqqpa.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa';
-const ADMIN_EMAIL = 'christianguilherme457@gmail.com';
-const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-});
+const API = 'https://vctsjrpeypxwxvmzqqpa.supabase.co/functions/v1/admin-gateway';
 const byId = id => document.getElementById(id);
 const say = (message, ok=false) => { const el=byId('authMessage'); el.textContent=message; el.className='notice '+(ok?'success':'warn'); };
-let remoteReady=false, channel=null, adminCheckInProgress=false, adminSessionId=null;
-
-byId('authForm').addEventListener('submit', async ev => {
-  ev.preventDefault();
-  const email=byId('adminEmail').value.trim().toLowerCase();
-  if(email!==ADMIN_EMAIL){say('Este e-mail não está autorizado para administrar o painel.');return;}
-  say('Enviando seu link de acesso seguro…');
-  const {error}=await db.auth.signInWithOtp({
-    email,
-    options:{
-      shouldCreateUser:false,
-      emailRedirectTo:'https://apismule.vercel.app/admin.html'
-    }
-  });
-  if(error){say('Não foi possível enviar o link: '+error.message);return;}
-  say('Link enviado! Abra o e-mail e clique em “Log in”. O acesso será validado pelo Supabase.',true);
-});
-
-async function requireAdmin(session){
-  if(!session){document.body.classList.remove('is-admin');return false;}
-  if(adminCheckInProgress || adminSessionId===session.user.id) return true;
-  adminCheckInProgress=true;
-  try{
-    const email=(session.user.email||'').toLowerCase();
-    if(email!==ADMIN_EMAIL){await db.auth.signOut();say('Conta autenticada, mas não autorizada para este painel.');return false;}
-    const {data,error}=await db.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
-    if(error||!data){document.body.classList.remove('is-admin');say('Sua conta foi autenticada, mas não está autorizada na tabela de administradores.');return false;}
-    adminSessionId=session.user.id;
-    document.body.classList.add('is-admin');
-    byId('authGate').classList.add('hidden');
-    await loadRemote();
-    subscribeRealtime();
-    return true;
-  }finally{adminCheckInProgress=false;}
+let token = sessionStorage.getItem('bh_admin_token') || '';
+if (location.hash.length > 1) {
+  token = location.hash.slice(1);
+  history.replaceState(null, '', location.pathname + location.search);
+  sessionStorage.setItem('bh_admin_token', token);
 }
-
-async function loadRemote(){
+let remoteReady=false, refreshHandle=null;
+async function api(action,payload={}) {
+  const response = await fetch(API, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token,action,payload}), cache:'no-store'
+  });
+  const result = await response.json().catch(()=>({error:'Resposta inválida do servidor.'}));
+  if (!response.ok) throw new Error(result.error || 'Falha na validação do acesso.');
+  return result;
+}
+function setAuthorizedScreen() {
+  document.body.classList.add('is-admin');
+  byId('authGate').classList.add('hidden');
+}
+async function loadRemote() {
   remoteReady=false;
-  say('Carregando dados compartilhados…',true);
-  const [{data:settings,error:se},{data:authorized,error:ae},{data:regs,error:re},{data:checkins,error:ce}]=await Promise.all([
-    db.from('event_settings').select('*').eq('singleton',true).single(),
-    db.from('authorized_participants').select('id,full_name,active').order('created_at'),
-    db.from('registrations').select('internal_number,created_at,authorized_participants(full_name)').order('internal_number'),
-    db.rpc('admin_list_event_checkins')
-  ]);
-  if(se||ae||re||ce){say('Falha ao carregar o banco: '+[se,ae,re,ce].filter(Boolean).map(x=>x.message).join(' | '));return;}
-  authorized=authorized.filter(x=>x.active).map(x=>x.full_name);
-  people=(checkins||[]).map(x=>({name:x.full_name,cpf:x.cpf,type:x.attendance_type,num:x.internal_number==null?'':String(x.internal_number).padStart(2,'0'),time:new Date(x.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}));
+  const data=await api('load');
+  const settings=data.settings, regs=data.registrations||[], checkins=data.checkins||[];
+  authorized=(data.authorized||[]).filter(x=>x.active).map(x=>x.full_name);
+  const regMap=new Map(regs.map(r=>[r.authorized_participant_id,r.internal_number]));
+  people=checkins.map(x=>({
+    name:x.full_name, cpf:x.cpf, type:x.attendance_type,
+    num:x.authorized_participant_id && regMap.has(x.authorized_participant_id)
+      ? String(regMap.get(x.authorized_participant_id)).padStart(2,'0') : '',
+    time:new Date(x.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
+  }));
   imported=authorized.length>0;
   registrationsOpen=!!settings.registrations_open;
   if(settings.event_start_time){
@@ -372,76 +345,98 @@ async function loadRemote(){
   stage=settings.current_stage||0;
   started=stage>0||people.length>0;
   winner=null;
-  if(settings.winner_number){const w=people.find(x=>Number(x.num)===Number(settings.winner_number));if(w)winner={num:w.num,name:w.name};}
-  stats();renderRegistrationState();renderStage();renderWinner();remoteReady=true;
-  say('Conectado ao banco compartilhado. Participantes e inscrições carregados.',true);
+  if(settings.winner_number){
+    const w=people.find(x=>Number(x.num)===Number(settings.winner_number));
+    if(w) winner={num:w.num,name:w.name};
+  }
+  stats(); renderRegistrationState(); renderStage(); renderWinner();
+  remoteReady=true;
+  say('Acesso validado. Dados sincronizados com o Supabase.',true);
 }
-
-function subscribeRealtime(){
-  if(channel) db.removeChannel(channel);
-  channel=db.channel('banco-honda-admin-sync')
-    .on('postgres_changes',{event:'*',schema:'public',table:'registrations'},loadRemote)
-    .on('postgres_changes',{event:'*',schema:'public',table:'event_checkins'},loadRemote)
-    .on('postgres_changes',{event:'*',schema:'public',table:'event_settings'},loadRemote)
-    .on('postgres_changes',{event:'*',schema:'public',table:'authorized_participants'},loadRemote)
-    .subscribe();
-}
-
-async function saveSettings(patch){
+async function saveSettings(patch) {
   if(!remoteReady) throw new Error('O banco ainda não está conectado.');
-  const {error}=await db.from('event_settings').update({...patch,updated_at:new Date().toISOString()}).eq('singleton',true);
-  if(error) throw error;
+  await api('save_settings',patch);
 }
-
-// Replace local-only actions with shared database operations.
 byId('confirmImport').onclick=async()=>{
   if(!pending.length)return;
-  const rows=pending.map(full_name=>({full_name:full_name.trim(),active:true}));
-  const {error}=await db.from('authorized_participants').upsert(rows,{onConflict:'normalized_name'});
-  if(error){byId('importMsg').textContent='Erro na importação: '+error.message;byId('importMsg').className='notice warn';byId('importMsg').classList.remove('hidden');return;}
-  pending=[];byId('preview').classList.add('hidden');byId('xlsx').value='';
-  await loadRemote();byId('importMsg').textContent='Lista oficial importada no banco compartilhado.';byId('importMsg').className='notice success';byId('importMsg').classList.remove('hidden');
+  try{
+    await api('import_authorized',{names:pending});
+    pending=[];byId('preview').classList.add('hidden');byId('xlsx').value='';
+    await loadRemote();
+    byId('importMsg').textContent='Lista oficial importada no banco compartilhado.';
+    byId('importMsg').className='notice success';byId('importMsg').classList.remove('hidden');
+  }catch(e){
+    byId('importMsg').textContent='Erro na importação: '+e.message;
+    byId('importMsg').className='notice warn';byId('importMsg').classList.remove('hidden');
+  }
 };
-byId('releaseNumbers').onclick=async()=>{if(!confirm('Confirma liberar os números para todos os participantes ao mesmo tempo?'))return;try{await saveSettings({numbers_released:true});await loadRemote();alert('Números liberados para todos os participantes.');}catch(e){alert('Não foi possível liberar: '+e.message)}};
-byId('openRegistrations').onclick=async()=>{try{if(!imported)throw new Error('Importe a lista oficial antes de abrir as inscrições.');await saveSettings({registrations_open:true});registrationsOpen=true;renderRegistrationState();}catch(e){alert(e.message)}};
-byId('closeRegistrations').onclick=async()=>{try{await saveSettings({registrations_open:false});registrationsOpen=false;renderRegistrationState();}catch(e){alert(e.message)}};
+byId('releaseNumbers').onclick=async()=>{
+  if(!confirm('Confirma liberar os números para todos os participantes ao mesmo tempo?'))return;
+  try{await saveSettings({numbers_released:true});await loadRemote();alert('Números liberados para todos os participantes.');}
+  catch(e){alert('Não foi possível liberar: '+e.message);}
+};
+byId('openRegistrations').onclick=async()=>{
+  try{if(!imported)throw new Error('Importe a lista oficial antes de abrir as inscrições.');await saveSettings({registrations_open:true});registrationsOpen=true;renderRegistrationState();}
+  catch(e){alert(e.message);}
+};
+byId('closeRegistrations').onclick=async()=>{
+  try{await saveSettings({registrations_open:false});registrationsOpen=false;renderRegistrationState();}
+  catch(e){alert(e.message);}
+};
 byId('submitRegistration').onclick=async()=>{
   const name=byId('publicName').value.trim(),msg=byId('registrationMessage');
-  const {error}=await db.rpc('register_event_participant',{p_full_name:name});
-  msg.textContent=error?error.message:'Participação confirmada. Obrigado!';
-  msg.className='notice '+(error?'warn':'success');msg.classList.remove('hidden');
-  if(!error){byId('publicName').value='';await loadRemote();}
+  try{
+    await api('register_participant',{name});
+    msg.textContent='Participação confirmada. Obrigado!';msg.className='notice success';msg.classList.remove('hidden');
+    byId('publicName').value='';await loadRemote();
+  }catch(e){msg.textContent=e.message;msg.className='notice warn';msg.classList.remove('hidden');}
 };
 byId('addLate').onclick=async()=>{
   const name=byId('lateName').value.trim();if(!name){alert('Digite o nome completo.');return;}
-  const {error}=await db.from('authorized_participants').insert({full_name:name,active:true});
-  if(error){byId('lateResult').textContent='Não foi possível adicionar: '+error.message;byId('lateResult').className='notice warn';}
-  else{await loadRemote();byId('lateResult').textContent='Participante incluído na lista oficial compartilhada.';byId('lateResult').className='notice success';byId('lateName').value='';}
+  try{
+    await api('add_late',{name});await loadRemote();
+    byId('lateResult').textContent='Participante incluído na lista oficial compartilhada.';
+    byId('lateResult').className='notice success';byId('lateName').value='';
+  }catch(e){byId('lateResult').textContent='Não foi possível adicionar: '+e.message;byId('lateResult').className='notice warn';}
   byId('lateResult').classList.remove('hidden');
 };
-byId('startBtn').onclick=async()=>{try{const next=Math.max(stage,1);await saveSettings({current_stage:next});stage=next;started=true;renderStage();}catch(e){alert(e.message)}};
-async function moveStage(delta){try{const next=Math.max(0,Math.min(5,stage+delta));await saveSettings({current_stage:next});stage=next;renderStage();}catch(e){alert(e.message)}}
-byId('prevBtn').onclick=()=>moveStage(-1);byId('nextBtn').onclick=()=>moveStage(1);byId('presBack').onclick=()=>moveStage(-1);byId('presNext').onclick=()=>moveStage(1);
+byId('startBtn').onclick=async()=>{
+  try{const next=Math.max(stage,1);await saveSettings({current_stage:next});stage=next;started=true;renderStage();}
+  catch(e){alert(e.message);}
+};
+async function moveStage(delta){
+  try{const next=Math.max(0,Math.min(5,stage+delta));await saveSettings({current_stage:next});stage=next;renderStage();}
+  catch(e){alert(e.message);}
+}
+byId('prevBtn').onclick=()=>moveStage(-1);byId('nextBtn').onclick=()=>moveStage(1);
+byId('presBack').onclick=()=>moveStage(-1);byId('presNext').onclick=()=>moveStage(1);
 byId('validateDraw').onclick=async()=>{
-  const n=Number(byId('drawNumber').value.trim());const p=people.find(x=>Number(x.num)===n);const out=byId('drawResult');
+  const n=Number(byId('drawNumber').value.trim()),p=people.find(x=>Number(x.num)===n),out=byId('drawResult');
   if(!p){out.textContent='Número não localizado entre as inscrições confirmadas.';out.className='notice warn';out.classList.remove('hidden');return;}
-  try{await saveSettings({winner_number:n,current_stage:5});winner={num:p.num,name:p.name};stage=5;renderWinner();renderStage();out.textContent='Número '+p.num+' validado. Ganhador: '+p.name+'.';out.className='notice success';out.classList.remove('hidden');}catch(e){out.textContent=e.message;out.className='notice warn';out.classList.remove('hidden');}
+  try{
+    await saveSettings({winner_number:n,current_stage:5});winner={num:p.num,name:p.name};stage=5;renderWinner();renderStage();
+    out.textContent='Número '+p.num+' validado. Ganhador: '+p.name+'.';out.className='notice success';out.classList.remove('hidden');
+  }catch(e){out.textContent=e.message;out.className='notice warn';out.classList.remove('hidden');}
 };
 byId('resetList').onclick=()=>alert('A lista compartilhada não pode ser apagada por este botão. Faça alterações administrativas diretamente na lista oficial.');
-byId('startTime').onchange=async()=>{try{const [h,m]=byId('startTime').value.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);await saveSettings({event_start_time:d.toISOString()});}catch(e){alert(e.message)}};
-
-db.auth.onAuthStateChange((event,session)=>{
-  if(event==='SIGNED_OUT'){
-    adminSessionId=null;
-    document.body.classList.remove('is-admin');
-    byId('authGate').classList.remove('hidden');
-    return;
+byId('startTime').onchange=async()=>{
+  try{const [h,m]=byId('startTime').value.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);await saveSettings({event_start_time:d.toISOString()});}
+  catch(e){alert(e.message);}
+};
+async function boot(){
+  if(!token){say('Link administrativo ausente. Abra o link exclusivo de acesso.',false);return;}
+  try{
+    if(!/^[a-f0-9]{64}$/.test(token))throw new Error('Formato do link inválido.');
+    setAuthorizedScreen();
+    await loadRemote();
+    if(refreshHandle)clearInterval(refreshHandle);
+    refreshHandle=setInterval(()=>loadRemote().catch(e=>say('Falha ao atualizar: '+e.message)),5000);
+  }catch(e){
+    sessionStorage.removeItem('bh_admin_token');token='';
+    document.body.classList.remove('is-admin');byId('authGate').classList.remove('hidden');
+    say(e.message,false);
   }
-  if(session) queueMicrotask(()=>requireAdmin(session));
-});
-
-const {data:{session},error}=await db.auth.getSession();
-if(error) say('Não foi possível recuperar sua sessão: '+error.message);
-else if(session) await requireAdmin(session);
+}
+boot();
 </script>
 </body></html>
