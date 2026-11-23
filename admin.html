@@ -74,6 +74,8 @@ body:not(.is-admin) .wrap{display:none!important}
 #authGate input{width:100%;padding:13px;border:1px solid #d5d9df;border-radius:9px;margin:8px 0 12px}\nbody:not(.is-admin) header{display:none}
 #authMessage{font-size:13px;margin-top:12px;line-height:1.4}
 
+
+.phase-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}.phase-controls button{min-height:48px}.phase-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.phase-preview-card{background:linear-gradient(145deg,#17191d,#292b30);color:#fff;border:1px solid #444;border-top:4px solid var(--red);border-radius:13px;padding:14px;min-width:0}.phase-preview-art{background:linear-gradient(120deg,#111,#451319);border-radius:8px;padding:15px 8px;text-align:center;font-size:11px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.phase-preview-art span{color:#ed1c24}.phase-preview-card small{color:#ff858b;font-weight:800;letter-spacing:1px}.phase-preview-card h3{font-size:16px;margin:7px 0}.phase-preview-card strong{font-size:11px;color:#ffb8bc}.phase-preview-card p{font-size:12px;color:#d0d0d0;line-height:1.45}@media(max-width:680px){.phase-controls{grid-template-columns:1fr}.phase-preview-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -166,11 +168,18 @@ body:not(.is-admin) .wrap{display:none!important}
 </section>
 
 <section id="dinamica" class="panel hidden">
-<h1>Apresentações do trimestre</h1><p class="muted">O administrador libera uma etapa por vez usando os controles. O público veria somente a etapa liberada.</p>
+<h1>Apresentações do trimestre</h1>
+<p class="muted">Após a contagem regressiva, libere a fase desejada. Os três flashcards da fase ativa passam em loop a cada 5 segundos na tela dos participantes.</p>
 <div class="card">
-<div class="row"><h2>Etapa atual</h2><span class="tag" id="presentationTag">Aguardando</span></div>
-<div id="presentationContent" class="notice">Nenhuma apresentação liberada.</div>
-<div class="row"><button class="secondary" id="presBack">Voltar etapa</button><button class="primary" id="presNext">Próxima etapa</button></div>
+<div class="row"><h2>Fase controlada pelo administrador</h2><span class="tag" id="presentationTag">Aguardando</span></div>
+<div class="phase-controls">
+<button class="secondary" id="phaseJuly">1 · Iniciação — Julho</button>
+<button class="secondary" id="phaseAugust">2 · Reestruturação — Agosto</button>
+<button class="secondary" id="phaseSeptember">3 · Conquista — Setembro</button>
+</div>
+<div id="presentationContent" class="notice">Aguardando o administrador iniciar as apresentações após a contagem regressiva.</div>
+<div class="row"><button class="secondary" id="presBack">Fase anterior</button><button class="primary" id="presNext">Próxima fase</button></div>
+<p class="muted">A mudança de fase é manual e sincronizada pelo Supabase. A troca dos cards dentro da fase é automática e não exige ação do administrador.</p>
 </div>
 </section>
 
@@ -239,9 +248,25 @@ function renderWinner(){
 
 function renderPeople(){let q=$('search').value.toLowerCase();let rows=people.filter(p=>(p.name+' '+(p.cpf||'')+' '+(p.num||'')).toLowerCase().includes(q));$('peopleRows').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.num||'—'}</td><td>${esc(p.name)}</td><td>${esc(p.cpf||'—')}</td><td><span class="tag ${p.type==='Espectador'?'gray':''}">${p.type}</span></td><td>${p.time}</td></tr>`).join(''):'<tr><td colspan="5" class="muted">Nenhum check-in encontrado.</td></tr>'}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function renderStage(){ $('stageLabel').textContent=stages[stage]||stages[0];$('stageCount').textContent='Etapa '+stage;$('stageCount').className='tag '+(stage?'':'gray');$('stageCount').textContent='Etapa '+stage;
-let content=stage===0?'Nenhuma apresentação liberada.':stage===1?'Apresentação de julho liberada.':stage===2?'Apresentação de agosto liberada.':stage===3?'Apresentação de setembro liberada.':stage===4?'Preparação do sorteio liberada.': 'Etapa do sorteio liberada.';
-$('presentationContent').textContent=content;$('presentationTag').textContent=stage?stages[stage]:'Aguardando';$('publicStage').textContent=content;$('publicStageTag').textContent=stage?stages[stage]:'Aguardando';}
+const presentationCards={
+  1:[['A Largada','Marco zero · posicionamento na pista','O ponto de partida da jornada de julho.'],['Base Sólida','Planejamento & estruturação','Definição de metas, mapeamento de processos e estrutura operacional.'],['Foco & Equipe','Alinhamento & preparação','Sinergia operacional, rota estratégica e preparação para superar.']],
+  2:[['Reorganização Estruturada','Otimização de processos','Redimensionamento de fluxos, otimização de tarefas e excelência operacional.'],['Sinergia Operacional','Integração de equipes','Alinhamento coletivo, sincronia operacional e execução integrada.'],['Retomada de Performance','Evolução trimestral','Inflexão da curva, evolução dos indicadores e recuperação estratégica.']],
+  3:[['Cúpula do Trimestre','Uma jornada histórica','Fechamento do ciclo e consolidação da evolução de julho a setembro.'],['A Conquista','Liderança geral e conquista coletiva','Reconhecimento máximo pelo resultado construído em equipe.'],['Bulgarelli + Banco Honda','Em parceria · Recuperação & Inovação','Encerramento institucional da fase de conquista.']]
+};
+function renderStage(){
+ $('stageLabel').textContent=stages[stage]||stages[0];
+ $('stageCount').textContent='Etapa '+stage;
+ $('stageCount').className='tag '+(stage?'':'gray');
+ const content=stage===0?'Contagem regressiva / aguardando o administrador iniciar as apresentações.':stage===1?'Fase 1 — Iniciação (julho) liberada.':stage===2?'Fase 2 — Reestruturação (agosto) liberada.':stage===3?'Fase 3 — Conquista (setembro) liberada.':stage===4?'Preparação do sorteio liberada.':'Etapa do sorteio liberada.';
+ $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:'Aguardando';
+ const active=stage>=1&&stage<=3?presentationCards[stage]:null;
+ $('presentationContent').innerHTML=active
+  ? '<div class="phase-preview-grid">'+active.map((c,i)=>'<article class="phase-preview-card"><div class="phase-preview-art">103 KI <span>×</span> BANCO HONDA</div><small>FLASHCARD '+(i+1)+'</small><h3>'+c[0]+'</h3><strong>'+c[1]+'</strong><p>'+c[2]+'</p></article>').join('')+'</div>'
+  : '<div class="notice">'+content+'</div>';
+ $('publicStage').textContent=content;
+ $('publicStageTag').textContent=stage?stages[stage]:'Aguardando';
+ ['phaseJuly','phaseAugust','phaseSeptember'].forEach((id,i)=>{const b=$(id);if(b){b.classList.toggle('primary',stage===i+1);b.classList.toggle('secondary',stage!==i+1);}});
+}
 function advance(n){stage=Math.max(0,Math.min(5,stage+n));save();renderStage()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden')});
 $('startBtn').onclick=()=>{started=true;if(stage===0)stage=1;save();renderStage();$('stageLabel').textContent=stages[stage]};
@@ -409,7 +434,16 @@ async function moveStage(delta){
   catch(e){alert(e.message);}
 }
 byId('prevBtn').onclick=()=>moveStage(-1);byId('nextBtn').onclick=()=>moveStage(1);
-byId('presBack').onclick=()=>moveStage(-1);byId('presNext').onclick=()=>moveStage(1);
+async function setPresentationPhase(next){
+ if(next<1||next>3)return;
+ try{await saveSettings({current_stage:next});stage=next;started=true;renderStage();}
+ catch(e){alert('Não foi possível liberar a fase: '+e.message);}
+}
+byId('presBack').onclick=()=>setPresentationPhase(Math.max(1,stage-1));
+byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));
+byId('phaseJuly').onclick=()=>setPresentationPhase(1);
+byId('phaseAugust').onclick=()=>setPresentationPhase(2);
+byId('phaseSeptember').onclick=()=>setPresentationPhase(3);
 byId('validateDraw').onclick=async()=>{
   const n=Number(byId('drawNumber').value.trim()),p=people.find(x=>Number(x.num)===n),out=byId('drawResult');
   if(!p){out.textContent='Número não localizado entre as inscrições confirmadas.';out.className='notice warn';out.classList.remove('hidden');return;}
