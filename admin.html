@@ -71,7 +71,7 @@ footer{color:#8a9099;padding:26px}
 
 body:not(.is-admin) .wrap{display:none!important}
 #authGate{max-width:460px;margin:8vh auto;padding:22px;background:#fff;border:1px solid #e1e4e8;border-top:4px solid #d71920;border-radius:14px;box-shadow:0 8px 30px #0001}
-#authGate input{width:100%;padding:13px;border:1px solid #d5d9df;border-radius:9px;margin:8px 0 12px}
+#authGate input{width:100%;padding:13px;border:1px solid #d5d9df;border-radius:9px;margin:8px 0 12px}\nbody:not(.is-admin) header{display:none}
 #authMessage{font-size:13px;margin-top:12px;line-height:1.4}
 
 </style>
@@ -80,13 +80,16 @@ body:not(.is-admin) .wrap{display:none!important}
 <section id="authGate">
   <div class="honda-mark" style="color:#151515"><span style="color:#d71920">HONDA</span> BANCO</div>
   <h1>Acesso do administrador</h1>
-  <p class="muted">Entre com o e-mail autorizado. Enviaremos um link de acesso seguro, sem senha.</p>
+  <p class="muted">Entre com o e-mail autorizado e sua senha.</p>
   <form id="authForm">
     <label for="adminEmail">E-mail</label>
-    <input id="adminEmail" type="email" value="christianguilherme457@gmail.com" autocomplete="email" required>
-    <button class="primary" type="submit">Enviar link de acesso</button>
+    <input id="adminEmail" type="email" placeholder="E-mail do administrador" autocomplete="username" required>
+    <label for="adminPassword">Senha</label>
+    <input id="adminPassword" type="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+    <button class="primary" type="submit">Entrar no painel</button>
   </form>
-  <div id="authMessage" class="notice" aria-live="polite">Somente a conta autorizada pode administrar o sorteio.</div>
+  <button id="resetPassword" class="secondary" type="button" style="margin-top:10px;width:100%">Definir ou redefinir senha</button>
+  <div id="authMessage" class="notice" aria-live="polite">Apenas a conta cadastrada como administradora pode entrar.</div>
 </section>
 <header><div class="topline"><div class="brandline">
 <div><div class="honda-mark"><span>HONDA</span> BANCO</div></div>
@@ -314,12 +317,23 @@ let remoteReady=false, channel=null;
 byId('authForm').addEventListener('submit', async ev => {
   ev.preventDefault();
   const email=byId('adminEmail').value.trim().toLowerCase();
+  const password=byId('adminPassword').value;
   if(email!==ADMIN_EMAIL){say('Este e-mail não está autorizado para administrar o sorteio.');return;}
-  say('Enviando link seguro de acesso…');
-  const options={shouldCreateUser:true,emailRedirectTo:'https://apismule.vercel.app/admin.html'};
-  const {error}=await db.auth.signInWithOtp({email,options});
-  if(error){say('Não foi possível enviar o link: '+error.message);return;}
-  say('Solicitação enviada. Confira a caixa de entrada e o spam. Abra o link neste mesmo endereço do painel para concluir o acesso.',true);
+  if(!password){say('Digite sua senha para continuar.');return;}
+  say('Verificando acesso…');
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error){say(error.message==='Invalid login credentials'?'E-mail ou senha incorretos. Confira os dados e tente novamente.':'Não foi possível entrar: '+error.message);return;}
+  const ok=await requireAdmin(data.session);
+  if(!ok) await db.auth.signOut();
+});
+
+byId('resetPassword').addEventListener('click',async()=>{
+  const email=byId('adminEmail').value.trim().toLowerCase();
+  if(email!==ADMIN_EMAIL){say('Informe o e-mail autorizado do administrador para definir ou redefinir a senha.');return;}
+  say('Enviando instruções para definir sua senha…');
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:'https://apismule.vercel.app/admin.html'});
+  if(error){say('Não foi possível enviar as instruções: '+error.message);return;}
+  say('Enviamos um link para definir sua senha. Esse link serve somente para cadastrar ou redefinir a senha; os próximos acessos serão feitos com e-mail e senha.',true);
 });
 
 async function requireAdmin(session){
@@ -418,6 +432,9 @@ byId('startTime').onchange=async()=>{try{const [h,m]=byId('startTime').value.spl
 
 const {data:{session}}=await db.auth.getSession();
 if(session) await requireAdmin(session);
-db.auth.onAuthStateChange(async(_event,session)=>{await requireAdmin(session)});
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==='SIGNED_OUT'){document.body.classList.remove('is-admin');byId('authGate').classList.remove('hidden');return;}
+  if(session) await requireAdmin(session);
+});
 </script>
 </body></html>
