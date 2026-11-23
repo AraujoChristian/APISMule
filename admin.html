@@ -381,6 +381,7 @@ function subscribeRealtime(){
   if(channel) db.removeChannel(channel);
   channel=db.channel('banco-honda-admin-sync')
     .on('postgres_changes',{event:'*',schema:'public',table:'registrations'},loadRemote)
+    .on('postgres_changes',{event:'*',schema:'public',table:'event_checkins'},loadRemote)
     .on('postgres_changes',{event:'*',schema:'public',table:'event_settings'},loadRemote)
     .on('postgres_changes',{event:'*',schema:'public',table:'authorized_participants'},loadRemote)
     .subscribe();
