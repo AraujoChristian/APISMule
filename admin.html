@@ -89,6 +89,14 @@ body:not(.is-admin) .wrap{display:none!important}
     <button class="primary" type="submit">Entrar no painel</button>
   </form>
   <button id="resetPassword" class="secondary" type="button" style="margin-top:10px;width:100%">Definir ou redefinir senha</button>
+  <form id="passwordRecoveryForm" class="hidden" style="margin-top:18px">
+    <h2>Cadastre sua nova senha</h2>
+    <label for="newAdminPassword">Nova senha</label>
+    <input id="newAdminPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres" required>
+    <label for="confirmAdminPassword">Confirme a nova senha</label>
+    <input id="confirmAdminPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Digite novamente" required>
+    <button class="primary" type="submit">Salvar nova senha</button>
+  </form>
   <div id="authMessage" class="notice" aria-live="polite">Apenas a conta cadastrada como administradora pode entrar.</div>
 </section>
 <header><div class="topline"><div class="brandline">
@@ -312,7 +320,33 @@ const ADMIN_EMAIL = 'christianguilherme457@gmail.com';
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 const byId = id => document.getElementById(id);
 const say = (message, ok=false) => { const el=byId('authMessage'); el.textContent=message; el.className='notice '+(ok?'success':'warn'); };
-let remoteReady=false, channel=null;
+let remoteReady=false, channel=null, recoveryMode=false;
+
+function showPasswordRecovery(){
+  recoveryMode=true;
+  byId('authForm').classList.add('hidden');
+  byId('resetPassword').classList.add('hidden');
+  byId('passwordRecoveryForm').classList.remove('hidden');
+  say('Link validado. Agora cadastre sua nova senha.',true);
+}
+
+byId('passwordRecoveryForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const password=byId('newAdminPassword').value;
+  const confirmation=byId('confirmAdminPassword').value;
+  if(password.length<8){say('A senha precisa ter pelo menos 8 caracteres.');return;}
+  if(password!==confirmation){say('As senhas não coincidem. Digite novamente.');return;}
+  say('Salvando sua nova senha…');
+  const {error}=await db.auth.updateUser({password});
+  if(error){say('Não foi possível salvar a senha: '+error.message);return;}
+  recoveryMode=false;
+  byId('passwordRecoveryForm').classList.add('hidden');
+  byId('authForm').classList.remove('hidden');
+  byId('resetPassword').classList.remove('hidden');
+  byId('adminPassword').value='';
+  say('Senha cadastrada com sucesso. Agora entre usando seu e-mail e a nova senha.',true);
+  await db.auth.signOut();
+});
 
 byId('authForm').addEventListener('submit', async ev => {
   ev.preventDefault();
@@ -433,7 +467,9 @@ byId('startTime').onchange=async()=>{try{const [h,m]=byId('startTime').value.spl
 const {data:{session}}=await db.auth.getSession();
 if(session) await requireAdmin(session);
 db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==='PASSWORD_RECOVERY'){showPasswordRecovery();return;}
   if(event==='SIGNED_OUT'){document.body.classList.remove('is-admin');byId('authGate').classList.remove('hidden');return;}
+  if(recoveryMode)return;
   if(session) await requireAdmin(session);
 });
 </script>
