@@ -187,6 +187,7 @@ function renderEventStage(){
  }
 }
 function renderCountdown(){
+ if(currentStage!==0)return;
  const now=new Date();
  if(!eventStartAt){
   ['hours','minutes','seconds'].forEach(id=>document.getElementById(id).textContent='--');
