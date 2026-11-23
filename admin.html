@@ -78,6 +78,8 @@ body:not(.is-admin) .wrap{display:none!important}
 .phase-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}.phase-controls button{min-height:48px}.phase-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.phase-preview-card{background:linear-gradient(145deg,#17191d,#292b30);color:#fff;border:1px solid #444;border-top:4px solid var(--red);border-radius:13px;padding:14px;min-width:0}.phase-preview-art{background:linear-gradient(120deg,#111,#451319);border-radius:8px;padding:15px 8px;text-align:center;font-size:11px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.phase-preview-art span{color:#ed1c24}.phase-preview-card small{color:#ff858b;font-weight:800;letter-spacing:1px}.phase-preview-card h3{font-size:16px;margin:7px 0}.phase-preview-card strong{font-size:11px;color:#ffb8bc}.phase-preview-card p{font-size:12px;color:#d0d0d0;line-height:1.45}@media(max-width:680px){.phase-controls{grid-template-columns:1fr}.phase-preview-grid{grid-template-columns:1fr}}
 
 .phase-preview-image{width:100%;height:190px;object-fit:contain;background:#0d0e11;border-radius:8px;margin-bottom:10px}.asset-upload-label{display:block;margin-top:12px;color:#f3c2c5;font-size:11px}.asset-upload-label input{font-size:11px;padding:7px;background:#fff;color:#222}.phase-preview-card small[id^="assetStatus"]{display:block;color:#c4c6cb;font-size:10px;margin-top:5px}
+
+.asset-manager{margin:16px 0;padding:14px;border:1px solid #e1e4e8;border-radius:12px;background:#fafafa}.asset-manager summary{font-weight:800;cursor:pointer}.asset-upload-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.asset-phase{padding:12px;border:1px solid #e1e4e8;border-radius:10px;background:#fff}.asset-phase>strong{display:block;font-size:12px;margin-bottom:10px}.asset-phase label{display:block;font-size:11px;margin:10px 0}.asset-phase input{display:block;width:100%;font-size:11px;padding:6px}.asset-phase small{display:block;color:#68707b;font-size:10px;margin-top:4px}@media(max-width:680px){.asset-upload-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -180,6 +182,13 @@ body:not(.is-admin) .wrap{display:none!important}
 <button class="secondary" id="phaseSeptember">3 · Conquista — Setembro</button>
 </div>
 <div id="presentationContent" class="notice">Aguardando o administrador iniciar as apresentações após a contagem regressiva.</div>
+<details class="asset-manager">
+<summary>Gerenciar imagens dos 9 flashcards</summary>
+<p class="muted">Envie cada imagem uma única vez. O envio é protegido pelo link administrativo; os participantes terão apenas acesso de visualização.</p>
+<div id="presentationUploads" class="asset-upload-grid">
+<div class="asset-phase"><strong>Fase 1 · Iniciação — Julho</strong><label>Flashcard 1<input type="file" class="presentation-upload" data-phase="1" data-card="1" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-1-1">Imagem ainda não enviada</small></label><label>Flashcard 2<input type="file" class="presentation-upload" data-phase="1" data-card="2" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-1-2">Imagem ainda não enviada</small></label><label>Flashcard 3<input type="file" class="presentation-upload" data-phase="1" data-card="3" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-1-3">Imagem ainda não enviada</small></label></div><div class="asset-phase"><strong>Fase 2 · Reestruturação — Agosto</strong><label>Flashcard 1<input type="file" class="presentation-upload" data-phase="2" data-card="1" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-2-1">Imagem ainda não enviada</small></label><label>Flashcard 2<input type="file" class="presentation-upload" data-phase="2" data-card="2" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-2-2">Imagem ainda não enviada</small></label><label>Flashcard 3<input type="file" class="presentation-upload" data-phase="2" data-card="3" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-2-3">Imagem ainda não enviada</small></label></div><div class="asset-phase"><strong>Fase 3 · Conquista — Setembro</strong><label>Flashcard 1<input type="file" class="presentation-upload" data-phase="3" data-card="1" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-3-1">Imagem ainda não enviada</small></label><label>Flashcard 2<input type="file" class="presentation-upload" data-phase="3" data-card="2" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-3-2">Imagem ainda não enviada</small></label><label>Flashcard 3<input type="file" class="presentation-upload" data-phase="3" data-card="3" accept="image/jpeg,image/png,image/webp"><small id="assetStatus-3-3">Imagem ainda não enviada</small></label></div>
+</div>
+</details>
 <div class="row"><button class="secondary" id="presBack">Fase anterior</button><button class="primary" id="presNext">Próxima fase</button></div>
 <p class="muted">A mudança de fase é manual e sincronizada pelo Supabase. A troca dos cards dentro da fase é automática e não exige ação do administrador.</p>
 </div>
@@ -264,7 +273,7 @@ function renderStage(){
  $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:'Aguardando';
  const active=stage>=1&&stage<=3?presentationCards[stage]:null;
  $('presentationContent').innerHTML=active
-  ? '<div class="phase-preview-grid">'+active.map((c,i)=>'<article class="phase-preview-card"><img class="phase-preview-image" src="https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+stage+'/card-'+(i+1)+'?v='+presentationAssetVersion+'" alt="Imagem do flashcard '+(i+1)+'" onerror="this.style.display=\'none\'"><div class="phase-preview-art">103 KI <span>×</span> BANCO HONDA</div><small>FLASHCARD '+(i+1)+'</small><h3>'+c[0]+'</h3><strong>'+c[1]+'</strong><p>'+c[2]+'</p><label class="asset-upload-label">Imagem deste flashcard<input type="file" class="presentation-upload" data-phase="'+stage+'" data-card="'+(i+1)+'" accept="image/jpeg,image/png,image/webp"></label><small id="assetStatus-'+stage+'-'+(i+1)+'">Imagem ainda não enviada</small></article>').join('')+'</div>'
+  ? '<div class="phase-preview-grid">'+active.map((c,i)=>'<article class="phase-preview-card"><img class="phase-preview-image" src="https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+stage+'/card-'+(i+1)+'?v='+presentationAssetVersion+'" alt="Imagem do flashcard '+(i+1)+'" onerror="this.style.display=\'none\'"><div class="phase-preview-art">103 KI <span>×</span> BANCO HONDA</div><small>FLASHCARD '+(i+1)+'</small><h3>'+c[0]+'</h3><strong>'+c[1]+'</strong><p>'+c[2]+'</p></article>').join('')+'</div>'
   : '<div class="notice">'+content+'</div>';
  $('publicStage').textContent=content;
  $('publicStageTag').textContent=stage?stages[stage]:'Aguardando';
@@ -385,7 +394,7 @@ async function saveSettings(patch) {
   if(!remoteReady) throw new Error('O banco ainda não está conectado.');
   await api('save_settings',patch);
 }
-byId('presentationContent').addEventListener('change',async ev=>{
+byId('presentationUploads').addEventListener('change',async ev=>{
  const input=ev.target.closest('.presentation-upload');
  if(!input||!input.files||!input.files[0])return;
  const file=input.files[0],phase=Number(input.dataset.phase),card=Number(input.dataset.card);
