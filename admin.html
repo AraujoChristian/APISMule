@@ -464,13 +464,22 @@ byId('validateDraw').onclick=async()=>{
 byId('resetList').onclick=()=>alert('A lista compartilhada não pode ser apagada por este botão. Faça alterações administrativas diretamente na lista oficial.');
 byId('startTime').onchange=async()=>{try{const [h,m]=byId('startTime').value.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);await saveSettings({event_start_time:d.toISOString()});}catch(e){alert(e.message)}};
 
-const {data:{session}}=await db.auth.getSession();
-if(session) await requireAdmin(session);
-db.auth.onAuthStateChange(async(event,session)=>{
+const recoveryHash=new URLSearchParams(location.hash.replace(/^#/,'' )).get('type');
+const recoveryQuery=new URLSearchParams(location.search).get('type');
+const isPasswordRecovery=recoveryHash==='recovery'||recoveryQuery==='recovery';
+
+db.auth.onAuthStateChange((event,session)=>{
   if(event==='PASSWORD_RECOVERY'){showPasswordRecovery();return;}
   if(event==='SIGNED_OUT'){document.body.classList.remove('is-admin');byId('authGate').classList.remove('hidden');return;}
   if(recoveryMode)return;
-  if(session) await requireAdmin(session);
+  if(session) queueMicrotask(()=>requireAdmin(session));
 });
+
+const {data:{session}}=await db.auth.getSession();
+if(isPasswordRecovery && session){
+  showPasswordRecovery();
+}else if(session){
+  await requireAdmin(session);
+}
 </script>
 </body></html>
