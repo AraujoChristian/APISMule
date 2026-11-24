@@ -140,7 +140,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),accessCodeInput=document.getElementById('accessCode'),accessCodeWrap=document.getElementById('accessCodeWrap'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
-let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinNumber=null,attendanceType='Espectador',numbersReleased=false;
+let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinToken=null,checkinNumber=null,attendanceType='Espectador',numbersReleased=false;
 const presentationAssetVersion=Date.now();
 const pad=n=>String(n).padStart(2,'0');
 function showWaiting(type,fullName){
@@ -187,9 +187,9 @@ async function revealPersonalNumber(){
  const box=document.getElementById('personalNumber');
  const msg=document.getElementById('numberRevealMessage');
  if(!numbersReleased){box.style.display='none';document.getElementById('numberRevealTitle').textContent='O SEU NÚMERO PODE SER O PRÓXIMO GRANDE DESTAQUE!';msg.textContent='AGUARDE COM ATENÇÃO.';return;}
- if(!checkinCpf){msg.textContent='Não foi possível validar sua sessão de check-in. Procure a organização para confirmar seu cadastro.';return;}
+ if(!checkinToken){msg.textContent='Não foi possível validar sua sessão de check-in. Procure a organização para confirmar seu cadastro.';return;}
  if(checkinNumber!==null){document.getElementById('numberRevealTitle').textContent='O SEU NÚMERO É...';box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});msg.textContent='ESTE É O SEU NÚMERO OFICIAL.';return;}
- const {data,error}=await db.rpc('get_event_checkin_number',{p_cpf:checkinCpf});
+ const {data,error}=await db.rpc('get_event_checkin_number',{p_session_token:checkinToken});
  if(error){msg.textContent='Não foi possível consultar seu número. Procure a organização.';return;}
  if(!data?.eligible){msg.textContent='Esta revelação é exclusiva dos participantes do sorteio.';return;}
  checkinNumber=data.number;document.getElementById('numberRevealTitle').textContent='O SEU NÚMERO É...';box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';
@@ -198,7 +198,8 @@ async function revealPersonalNumber(){
 }
 function renderEventStage(){
  const isParticipant=attendanceType==='Participante';
- const isPresentation=currentStage>=1&&currentStage<=3 || (currentStage>=4&&!isParticipant);
+ const isPresentation=currentStage>=1&&currentStage<=3;
+ const isSpectatorLocked=currentStage>=4&&!isParticipant;
  const isNumberReveal=currentStage===4&&isParticipant;
  const isAfterPresentation=currentStage>=5&&isParticipant;
  document.getElementById('timerHeading').classList.toggle('hidden',currentStage!==0);
@@ -217,6 +218,11 @@ function renderEventStage(){
  if(isNumberReveal){
    document.getElementById('numberRevealMessage').textContent=numbersReleased?'Os números foram liberados. Confira o seu!':'Está ansioso? Seu número está quase chegando… A organização está preparando a grande revelação. Fique nesta tela: todos os participantes receberão seus números ao mesmo tempo!';
    revealPersonalNumber();
+ }
+ if(isSpectatorLocked){
+   document.getElementById('waitStatus').classList.remove('hidden');
+   document.getElementById('waitState').textContent='ETAPA EXCLUSIVA DOS PARTICIPANTES';
+   document.getElementById('waitDescription').textContent='As apresentações foram encerradas. A partir desta etapa, o acesso é exclusivo de quem está participando do sorteio.';
  }
  if(isAfterPresentation){
    document.getElementById('waitStatus').classList.remove('hidden');
@@ -257,6 +263,19 @@ async function loadEventTime(){
  renderCountdown();renderEventStage();
 }
 
+async function restoreParticipantSession(){
+ const saved=localStorage.getItem('bh_participant_session');
+ if(!saved)return;
+ const {data,error}=await db.rpc('get_event_checkin_number',{p_session_token:saved});
+ if(error||!data){localStorage.removeItem('bh_participant_session');return;}
+ checkinToken=saved;
+ attendanceType=data.attendance_type||'Espectador';
+ checkinNumber=data.number??null;
+ await loadEventTime();
+ showWaiting(attendanceType,data.full_name||'participante');
+ if(!countdownHandle)countdownHandle=setInterval(renderCountdown,1000);
+}
+
 cpfInput.addEventListener('input',()=>{let v=cpfInput.value.replace(/\D/g,'').slice(0,11);v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');cpfInput.value=v;});
 form.querySelectorAll('input[name="raffle"]').forEach(el=>el.addEventListener('change',()=>{
  const wants= form.querySelector('input[name="raffle"]:checked')?.value==='yes';
@@ -277,6 +296,10 @@ form.addEventListener('submit',async ev=>{
  const {data,error}=await db.rpc('register_event_checkin',{p_full_name:fullName,p_cpf:cpf,p_wants_raffle:choice.value==='yes',p_access_code:choice.value==='yes'?accessCode:null});
  if(error){show(error.message||'Não foi possível registrar seu check-in. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
  if(data?.duplicate){show(data.message||'Este CPF já possui cadastro. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
+ if(typeof data?.session_token==='string'&&/^[a-f0-9]{64}$/.test(data.session_token)){
+  checkinToken=data.session_token;
+  localStorage.setItem('bh_participant_session',checkinToken);
+ }
  form.querySelectorAll('input').forEach(el=>el.disabled=true);
  submit.textContent='CHECK-IN REGISTRADO';
  await loadEventTime();
@@ -291,5 +314,6 @@ db.channel('public-event-settings')
   renderCountdown();renderEventStage();
  })
  .subscribe();
+restoreParticipantSession().catch(()=>{});
 </script>
 </body></html>
