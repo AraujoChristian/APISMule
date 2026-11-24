@@ -86,7 +86,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <label class="choice"><input type="radio" name="raffle" value="yes" required><span><strong>SIM</strong><small>Sorteio · 2 motos Honda Elite 125</small></span></label>
         <label class="choice"><input type="radio" name="raffle" value="no"><span><strong>NÃO</strong><small>Somente espectador</small></span></label>
       </div>
-      <div class="prize"><div class="prize-icon">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Participação sujeita à lista oficial da organização.</small></div></div>
+      <div id="accessCodeWrap" hidden><label for="accessCode">Código de acesso</label><input id="accessCode" type="text" autocomplete="off" maxlength="24" placeholder="Digite o código recebido" style="text-transform:uppercase"><p class="hint">O código é individual e só pode ser utilizado uma vez.</p></div>\n      <div class="prize"><div class="prize-icon">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Para participar, informe o código individual recebido da organização.</small></div></div>
       <button id="submit" type="submit">CONFIRMAR CHEGADA&nbsp; →</button>
       <p class="hint">Ao confirmar, seu check-in será registrado.</p>
       <div id="message" class="message" role="status" aria-live="polite"></div>
@@ -138,7 +138,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
-const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
+const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),accessCodeInput=document.getElementById('accessCode'),accessCodeWrap=document.getElementById('accessCodeWrap'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
 let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinNumber=null,attendanceType='Espectador',numbersReleased=false;
 const presentationAssetVersion=Date.now();
@@ -258,16 +258,25 @@ async function loadEventTime(){
 }
 
 cpfInput.addEventListener('input',()=>{let v=cpfInput.value.replace(/\D/g,'').slice(0,11);v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');cpfInput.value=v;});
+form.querySelectorAll('input[name="raffle"]').forEach(el=>el.addEventListener('change',()=>{
+ const wants= form.querySelector('input[name="raffle"]:checked')?.value==='yes';
+ accessCodeWrap.hidden=!wants;
+ accessCodeInput.required=wants;
+ if(!wants) accessCodeInput.value='';
+}));
 function show(text,error=false){message.textContent=text;message.className='message show'+(error?' error':'');}
 form.addEventListener('submit',async ev=>{
  ev.preventDefault();
  const fullName=nameInput.value.trim(),cpf=cpfInput.value.replace(/\D/g,''),choice=form.querySelector('input[name="raffle"]:checked');
+ const accessCode=accessCodeInput.value.trim().toUpperCase();
  if(fullName.length<3){show('Informe seu nome completo.',true);return;}
  if(cpf.length!==11){show('Confira o CPF informado.',true);return;}
  if(!choice){show('Selecione SIM ou NÃO para o sorteio.',true);return;}
+ if(choice.value==='yes' && !accessCode){show('Informe o código individual recebido para participar do sorteio.',true);return;}
  checkinCpf=cpf; submit.disabled=true;submit.textContent='REGISTRANDO CHECK-IN…';message.className='message';
- const {data,error}=await db.rpc('register_event_checkin',{p_full_name:fullName,p_cpf:cpf,p_wants_raffle:choice.value==='yes'});
+ const {data,error}=await db.rpc('register_event_checkin',{p_full_name:fullName,p_cpf:cpf,p_wants_raffle:choice.value==='yes',p_access_code:choice.value==='yes'?accessCode:null});
  if(error){show(error.message||'Não foi possível registrar seu check-in. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
+ if(data?.duplicate){show(data.message||'Este CPF já possui cadastro. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
  form.querySelectorAll('input').forEach(el=>el.disabled=true);
  submit.textContent='CHECK-IN REGISTRADO';
  await loadEventTime();
