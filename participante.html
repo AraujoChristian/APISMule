@@ -140,10 +140,11 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
-let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinNumber=null;
+let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinNumber=null,attendanceType='Espectador',numbersReleased=false;
 const presentationAssetVersion=Date.now();
 const pad=n=>String(n).padStart(2,'0');
-function showWaiting(attendanceType,fullName){
+function showWaiting(type,fullName){
+ attendanceType=type||'Espectador';
  const isParticipant=attendanceType==='Participante';
  document.getElementById('welcomeRole').textContent=fullName||'participante';
  const pill=document.getElementById('rolePill');
@@ -166,49 +167,57 @@ const presentationCards={
   3:[['Cúpula do Trimestre','Uma jornada histórica','Fechamento do ciclo e consolidação da evolução de julho a setembro.'],['A Conquista','Liderança geral e conquista coletiva','Reconhecimento máximo pelo resultado construído em equipe.'],['Bulgarelli + Banco Honda','Em parceria · Recuperação & Inovação','Encerramento institucional da fase de conquista.']]
 };
 function renderPresentationCard(){
- const cards=presentationCards[currentStage];if(!cards)return;
+ const phase=currentStage>=4?3:currentStage;
+ const cards=presentationCards[phase];if(!cards)return;
  const c=cards[slideIndex];
- document.getElementById('presentationPhase').textContent=['','FASE 1 · INICIAÇÃO — JULHO','FASE 2 · REESTRUTURAÇÃO — AGOSTO','FASE 3 · CONQUISTA — SETEMBRO'][currentStage];
+ document.getElementById('presentationPhase').textContent=['','FASE 1 · INICIAÇÃO — JULHO','FASE 2 · REESTRUTURAÇÃO — AGOSTO','FASE 3 · CONQUISTA — SETEMBRO'][phase];
  document.getElementById('presentationCounter').textContent='CARD '+(slideIndex+1)+' DE 3';
  document.getElementById('presentationTitle').textContent=c[0];
  document.getElementById('presentationSubtitle').textContent=c[1];
  document.getElementById('presentationDescription').textContent=c[2];
  document.getElementById('presentationKicker').textContent='103 KI · BANCO HONDA';
  const image=document.getElementById('presentationImage');
- image.classList.remove('hidden');
- image.classList.add('is-changing');
+ image.classList.remove('hidden');image.classList.add('is-changing');
  image.onload=()=>{requestAnimationFrame(()=>image.classList.remove('is-changing'));};
  image.onerror=()=>{image.classList.add('hidden');image.classList.remove('is-changing');};
- image.src='https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+currentStage+'/card-'+(slideIndex+1)+'?v='+presentationAssetVersion;
+ image.src='https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+phase+'/card-'+(slideIndex+1)+'?v='+presentationAssetVersion;
  document.getElementById('presentationProgress').style.width=((slideIndex+1)/3*100)+'%';
 }
 async function revealPersonalNumber(){
  const box=document.getElementById('personalNumber');
  const msg=document.getElementById('numberRevealMessage');
- if(!checkinCpf){msg.textContent='Para consultar seu número com segurança, será necessário confirmar seu CPF novamente.';return;}
+ if(!numbersReleased){box.style.display='none';msg.textContent='Está ansioso? Seu número está quase chegando… A organização está preparando a grande revelação. Fique nesta tela: todos os participantes receberão seus números ao mesmo tempo!';return;}
+ if(!checkinCpf){msg.textContent='Não foi possível validar sua sessão de check-in. Procure a organização para confirmar seu cadastro.';return;}
  if(checkinNumber!==null){box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});msg.textContent='Este é o seu número oficial.';return;}
  const {data,error}=await db.rpc('get_event_checkin_number',{p_cpf:checkinCpf});
  if(error){msg.textContent='Não foi possível consultar seu número. Procure a organização.';return;}
- if(!data?.eligible){msg.textContent='Seu cadastro está confirmado como espectador. Esta revelação é exclusiva dos participantes do sorteio.';return;}
+ if(!data?.eligible){msg.textContent='Esta revelação é exclusiva dos participantes do sorteio.';return;}
  checkinNumber=data.number;box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';
  requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});
  msg.textContent='Número revelado! Guarde essa informação para a etapa do sorteio.';
 }
 function renderEventStage(){
- const isPresentation=currentStage>=1&&currentStage<=3;
- const isNumberReveal=currentStage===4;\n const isAfterPresentation=currentStage>=5;
+ const isParticipant=attendanceType==='Participante';
+ const isPresentation=currentStage>=1&&currentStage<=3 || (currentStage>=4&&!isParticipant);
+ const isNumberReveal=currentStage===4&&isParticipant;
+ const isAfterPresentation=currentStage>=5&&isParticipant;
  document.getElementById('timerHeading').classList.toggle('hidden',currentStage!==0);
  document.getElementById('eventTimer').classList.toggle('hidden',currentStage!==0);
  document.getElementById('timerNote').classList.toggle('hidden',currentStage!==0);
  document.getElementById('waitPrize').classList.toggle('hidden',currentStage!==0);
  document.getElementById('waitBottom').classList.toggle('hidden',currentStage!==0);
- document.getElementById('presentationBox').classList.toggle('hidden',!isPresentation);\n document.getElementById('numberRevealBox').classList.toggle('hidden',!isNumberReveal);
- document.getElementById('waitStatus').classList.toggle('hidden',isPresentation);
+ document.getElementById('presentationBox').classList.toggle('hidden',!isPresentation);
+ document.getElementById('numberRevealBox').classList.toggle('hidden',!isNumberReveal);
+ document.getElementById('waitStatus').classList.toggle('hidden',isPresentation||isNumberReveal);
  if(isPresentation){
    if(slideHandle)clearInterval(slideHandle);
    slideIndex=0;renderPresentationCard();
    slideHandle=setInterval(()=>{slideIndex=(slideIndex+1)%3;renderPresentationCard();},7000);
  }else if(slideHandle){clearInterval(slideHandle);slideHandle=null;}
+ if(isNumberReveal){
+   document.getElementById('numberRevealMessage').textContent=numbersReleased?'Os números foram liberados. Confira o seu!':'Está ansioso? Seu número está quase chegando… A organização está preparando a grande revelação. Fique nesta tela: todos os participantes receberão seus números ao mesmo tempo!';
+   revealPersonalNumber();
+ }
  if(isAfterPresentation){
    document.getElementById('waitStatus').classList.remove('hidden');
    document.getElementById('waitState').textContent=currentStage===5?'ETAPA DO SORTEIO':'RESULTADO DO SORTEIO';
@@ -240,10 +249,11 @@ function renderCountdown(){
  }
 }
 async function loadEventTime(){
- const {data,error}=await db.from('event_settings').select('event_start_time,current_stage').eq('singleton',true).single();
+ const {data,error}=await db.from('event_settings').select('event_start_time,current_stage,numbers_released').eq('singleton',true).single();
  if(error){document.getElementById('timerNote').textContent='Não foi possível atualizar o horário. Tentando novamente…';return;}
  eventStartAt=data.event_start_time?new Date(data.event_start_time):null;
  currentStage=Number(data.current_stage||0);
+ numbersReleased=!!data.numbers_released;
  renderCountdown();renderEventStage();
 }
 
@@ -268,6 +278,7 @@ db.channel('public-event-settings')
  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'event_settings',filter:'singleton=eq.true'},payload=>{
   eventStartAt=payload.new.event_start_time?new Date(payload.new.event_start_time):null;
   currentStage=Number(payload.new.current_stage||0);
+  numbersReleased=!!payload.new.numbers_released;
   renderCountdown();renderEventStage();
  })
  .subscribe();
