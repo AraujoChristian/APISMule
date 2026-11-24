@@ -86,7 +86,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <label class="choice"><input type="radio" name="raffle" value="yes" required><span><strong>SIM</strong><small>Sorteio · 2 motos Honda Elite 125</small></span></label>
         <label class="choice"><input type="radio" name="raffle" value="no"><span><strong>NÃO</strong><small>Somente espectador</small></span></label>
       </div>
-      <div id="accessCodeWrap" hidden><label for="accessCode">Código de acesso</label><input id="accessCode" type="text" autocomplete="off" maxlength="24" placeholder="Digite o código recebido" style="text-transform:uppercase"><p class="hint">O código é individual e só pode ser utilizado uma vez.</p></div>\n      <div class="prize"><div class="prize-icon">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Para participar, informe o código individual recebido da organização.</small></div></div>
+      <div id="accessCodeWrap" hidden><label for="accessCode">Código de acesso</label><input id="accessCode" type="text" autocomplete="off" maxlength="24" placeholder="Digite o código recebido" style="text-transform:uppercase"><p class="hint">O código é individual e só pode ser utilizado uma vez.</p></div>
+      <div class="prize"><div class="prize-icon">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Para participar, informe o código individual recebido da organização.</small></div></div>
       <button id="submit" type="submit">CONFIRMAR CHEGADA&nbsp; →</button>
       <p class="hint">Ao confirmar, seu check-in será registrado.</p>
       <div id="message" class="message" role="status" aria-live="polite"></div>
@@ -140,7 +141,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),accessCodeInput=document.getElementById('accessCode'),accessCodeWrap=document.getElementById('accessCodeWrap'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
-let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinToken=null,checkinNumber=null,attendanceType='Espectador',numbersReleased=false;\nlet revealInFlight=false,revealRetryHandle=null,revealAnimationHandle=null,revealAnimationAt=0,numberDisplayed=false;
+let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinToken=null,checkinNumber=null,attendanceType='Espectador',numbersReleased=false;
+let revealInFlight=false,revealRetryHandle=null,revealAnimationHandle=null,revealAnimationAt=0,numberDisplayed=false;
 const presentationAssetVersion=Date.now();
 const pad=n=>String(n).padStart(2,'0');
 function showWaiting(type,fullName){
