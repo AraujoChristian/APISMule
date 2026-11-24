@@ -71,7 +71,8 @@ footer{color:#8a9099;padding:26px}
 
 body:not(.is-admin) .wrap{display:none!important}
 #authGate{max-width:460px;margin:8vh auto;padding:22px;background:#fff;border:1px solid #e1e4e8;border-top:4px solid #d71920;border-radius:14px;box-shadow:0 8px 30px #0001}
-#authGate input{width:100%;padding:13px;border:1px solid #d5d9df;border-radius:9px;margin:8px 0 12px}\nbody:not(.is-admin) header{display:none}
+#authGate input{width:100%;padding:13px;border:1px solid #d5d9df;border-radius:9px;margin:8px 0 12px}
+body:not(.is-admin) header{display:none}
 #authMessage{font-size:13px;margin-top:12px;line-height:1.4}
 
 
@@ -471,7 +472,8 @@ async function setPresentationPhase(next){
  catch(e){alert('Não foi possível liberar a fase: '+e.message);}
 }
 byId('presBack').onclick=()=>setPresentationPhase(Math.max(1,stage-1));
-byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));\nbyId('revealNumbers').onclick=async()=>{try{await saveSettings({current_stage:4,numbers_released:false});stage=4;started=true;renderStage();}catch(e){alert('Não foi possível abrir a sala de espera da revelação: '+e.message);}};
+byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));
+byId('revealNumbers').onclick=async()=>{try{await saveSettings({current_stage:4,numbers_released:false});stage=4;started=true;renderStage();}catch(e){alert('Não foi possível abrir a sala de espera da revelação: '+e.message);}};
 byId('phaseJuly').onclick=()=>setPresentationPhase(1);
 byId('phaseAugust').onclick=()=>setPresentationPhase(2);
 byId('phaseSeptember').onclick=()=>setPresentationPhase(3);
