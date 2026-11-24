@@ -180,6 +180,7 @@ body:not(.is-admin) .wrap{display:none!important}
 <button class="secondary" id="phaseJuly">1 · Iniciação — Julho</button>
 <button class="secondary" id="phaseAugust">2 · Reestruturação — Agosto</button>
 <button class="secondary" id="phaseSeptember">3 · Conquista — Setembro</button>
+<button class="primary" id="revealNumbers">4 · Revelar números</button>
 </div>
 <div id="presentationContent" class="notice">Aguardando o administrador iniciar as apresentações após a contagem regressiva.</div>
 <details class="asset-manager">
@@ -270,7 +271,7 @@ function renderStage(){
  $('stageCount').textContent='Etapa '+stage;
  $('stageCount').className='tag '+(stage?'':'gray');
  const content=stage===0?'Contagem regressiva / aguardando o administrador iniciar as apresentações.':stage===1?'Fase 1 — Iniciação (julho) liberada.':stage===2?'Fase 2 — Reestruturação (agosto) liberada.':stage===3?'Fase 3 — Conquista (setembro) liberada.':stage===4?'Preparação do sorteio liberada.':'Etapa do sorteio liberada.';
- $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:'Aguardando';
+ $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:stage===4?'Revelação dos números':'Aguardando';
  const active=stage>=1&&stage<=3?presentationCards[stage]:null;
  $('presentationContent').innerHTML=active
   ? '<div class="phase-preview-grid">'+active.map((c,i)=>'<article class="phase-preview-card"><img class="phase-preview-image" src="https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+stage+'/card-'+(i+1)+'?v='+presentationAssetVersion+'" alt="Imagem do flashcard '+(i+1)+'" onerror="this.style.display=\'none\'"><div class="phase-preview-art">103 KI <span>×</span> BANCO HONDA</div><small>FLASHCARD '+(i+1)+'</small><h3>'+c[0]+'</h3><strong>'+c[1]+'</strong><p>'+c[2]+'</p></article>').join('')+'</div>'
@@ -470,7 +471,7 @@ async function setPresentationPhase(next){
  catch(e){alert('Não foi possível liberar a fase: '+e.message);}
 }
 byId('presBack').onclick=()=>setPresentationPhase(Math.max(1,stage-1));
-byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));
+byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));\nbyId('revealNumbers').onclick=async()=>{try{await saveSettings({current_stage:4});stage=4;started=true;renderStage();}catch(e){alert('Não foi possível liberar a revelação: '+e.message);}};
 byId('phaseJuly').onclick=()=>setPresentationPhase(1);
 byId('phaseAugust').onclick=()=>setPresentationPhase(2);
 byId('phaseSeptember').onclick=()=>setPresentationPhase(3);
