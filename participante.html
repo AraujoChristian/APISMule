@@ -124,10 +124,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div class="presentation-progress"><span id="presentationProgress"></span></div>
       
     </section>
-    <section id="numberRevealBox" class="hidden" style="margin:22px 0;padding:26px 18px;text-align:center;border:1px solid #8b3038;border-radius:18px;background:radial-gradient(circle at 50% 0,#641b24 0,transparent 58%),linear-gradient(145deg,#1b1d22,#090a0d);box-shadow:0 18px 55px #0008">
+    <section id="numberRevealBox" class="hidden" style="margin:22px 0;padding:34px 20px;min-height:360px;display:flex;flex-direction:column;justify-content:center;text-align:center;border:1px solid #8b3038;border-radius:18px;background:radial-gradient(ellipse at 0% 0%,#8f101a 0,transparent 34%),radial-gradient(ellipse at 100% 100%,#8f101a 0,transparent 32%),linear-gradient(145deg,#111 0%,#080808 58%,#171717 100%);box-shadow:0 18px 55px #0008;transition:opacity 1.2s ease,transform 1.2s ease">
       <div style="font-size:10px;letter-spacing:2px;color:#ff858b;font-weight:900">MOMENTO DA REVELAÇÃO</div>
-      <h2 style="font-size:clamp(24px,6vw,34px);margin:14px 0 8px">Seu número está prestes a ser revelado…</h2>
-      <p id="numberRevealMessage" style="color:#c5c6cb;font-size:13px;line-height:1.6">Aguarde. A organização está preparando a revelação para todos.</p>
+      <h2 id="numberRevealTitle" style="font-size:clamp(25px,6vw,36px);line-height:1.15;margin:18px 0 12px;color:#fff;font-weight:950">O SEU NÚMERO PODE SER O PRÓXIMO GRANDE DESTAQUE!</h2>
+      <p id="numberRevealMessage" style="color:#fff;font-size:13px;line-height:1.6;letter-spacing:.5px">AGUARDE COM ATENÇÃO.</p>
       <div id="personalNumber" style="display:none;margin:22px auto 8px;width:170px;height:170px;border-radius:50%;border:2px solid #ff626b;background:radial-gradient(circle,#4c151c,#090a0d 72%);align-items:center;justify-content:center;font-size:64px;font-weight:950;letter-spacing:2px;color:white;text-shadow:0 0 28px #ff3545;box-shadow:0 0 45px #e52b3545;opacity:0;filter:blur(12px);transition:opacity 2s ease,filter 2s ease,transform 2s ease;transform:scale(.88)"></div>
     </section>
     <div class="wait-prize" id="waitPrize"><div class="bike-art">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Continue nesta tela para acompanhar a contagem regressiva e as atualizações da organização.</small></div></div>
@@ -186,15 +186,15 @@ function renderPresentationCard(){
 async function revealPersonalNumber(){
  const box=document.getElementById('personalNumber');
  const msg=document.getElementById('numberRevealMessage');
- if(!numbersReleased){box.style.display='none';msg.textContent='Está ansioso? Seu número está quase chegando… A organização está preparando a grande revelação. Fique nesta tela: todos os participantes receberão seus números ao mesmo tempo!';return;}
+ if(!numbersReleased){box.style.display='none';document.getElementById('numberRevealTitle').textContent='O SEU NÚMERO PODE SER O PRÓXIMO GRANDE DESTAQUE!';msg.textContent='AGUARDE COM ATENÇÃO.';return;}
  if(!checkinCpf){msg.textContent='Não foi possível validar sua sessão de check-in. Procure a organização para confirmar seu cadastro.';return;}
- if(checkinNumber!==null){box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});msg.textContent='Este é o seu número oficial.';return;}
+ if(checkinNumber!==null){document.getElementById('numberRevealTitle').textContent='O SEU NÚMERO É...';box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});msg.textContent='ESTE É O SEU NÚMERO OFICIAL.';return;}
  const {data,error}=await db.rpc('get_event_checkin_number',{p_cpf:checkinCpf});
  if(error){msg.textContent='Não foi possível consultar seu número. Procure a organização.';return;}
  if(!data?.eligible){msg.textContent='Esta revelação é exclusiva dos participantes do sorteio.';return;}
- checkinNumber=data.number;box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';
+ checkinNumber=data.number;document.getElementById('numberRevealTitle').textContent='O SEU NÚMERO É...';box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';
  requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});
- msg.textContent='Número revelado! Guarde essa informação para a etapa do sorteio.';
+ msg.textContent='ESTE É O SEU NÚMERO OFICIAL. Guarde essa informação.';
 }
 function renderEventStage(){
  const isParticipant=attendanceType==='Participante';
