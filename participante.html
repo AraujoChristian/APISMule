@@ -124,6 +124,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div class="presentation-progress"><span id="presentationProgress"></span></div>
       
     </section>
+    <section id="numberRevealBox" class="hidden" style="margin:22px 0;padding:26px 18px;text-align:center;border:1px solid #8b3038;border-radius:18px;background:radial-gradient(circle at 50% 0,#641b24 0,transparent 58%),linear-gradient(145deg,#1b1d22,#090a0d);box-shadow:0 18px 55px #0008">
+      <div style="font-size:10px;letter-spacing:2px;color:#ff858b;font-weight:900">MOMENTO DA REVELAÇÃO</div>
+      <h2 style="font-size:clamp(24px,6vw,34px);margin:14px 0 8px">Seu número está prestes a ser revelado…</h2>
+      <p id="numberRevealMessage" style="color:#c5c6cb;font-size:13px;line-height:1.6">Aguarde. A organização está preparando a revelação para todos.</p>
+      <div id="personalNumber" style="display:none;margin:22px auto 8px;width:170px;height:170px;border-radius:50%;border:2px solid #ff626b;background:radial-gradient(circle,#4c151c,#090a0d 72%);align-items:center;justify-content:center;font-size:64px;font-weight:950;letter-spacing:2px;color:white;text-shadow:0 0 28px #ff3545;box-shadow:0 0 45px #e52b3545;opacity:0;filter:blur(12px);transition:opacity 2s ease,filter 2s ease,transform 2s ease;transform:scale(.88)"></div>
+    </section>
     <div class="wait-prize" id="waitPrize"><div class="bike-art">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Continue nesta tela para acompanhar a contagem regressiva e as atualizações da organização.</small></div></div>
     <div class="wait-bottom" id="waitBottom">AGUARDANDO O INÍCIO DA PREMIAÇÃO</div>
   </section>
@@ -134,7 +140,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const db=createClient('https://vctsjrpeypxwxvmzqqpa.supabase.co','sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa');
 const form=document.getElementById('checkinForm'),nameInput=document.getElementById('fullName'),cpfInput=document.getElementById('cpf'),submit=document.getElementById('submit'),message=document.getElementById('message');
 const registrationCard=document.getElementById('registrationCard'),waitingScreen=document.getElementById('waitingScreen');
-let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null;
+let eventStartAt=null,countdownHandle=null,currentStage=0,slideIndex=0,slideHandle=null,checkinCpf=null,checkinNumber=null;
 const presentationAssetVersion=Date.now();
 const pad=n=>String(n).padStart(2,'0');
 function showWaiting(attendanceType,fullName){
@@ -176,15 +182,27 @@ function renderPresentationCard(){
  image.src='https://vctsjrpeypxwxvmzqqpa.supabase.co/storage/v1/object/public/presentation-assets/phase-'+currentStage+'/card-'+(slideIndex+1)+'?v='+presentationAssetVersion;
  document.getElementById('presentationProgress').style.width=((slideIndex+1)/3*100)+'%';
 }
+async function revealPersonalNumber(){
+ const box=document.getElementById('personalNumber');
+ const msg=document.getElementById('numberRevealMessage');
+ if(!checkinCpf){msg.textContent='Para consultar seu número com segurança, será necessário confirmar seu CPF novamente.';return;}
+ if(checkinNumber!==null){box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});msg.textContent='Este é o seu número oficial.';return;}
+ const {data,error}=await db.rpc('get_event_checkin_number',{p_cpf:checkinCpf});
+ if(error){msg.textContent='Não foi possível consultar seu número. Procure a organização.';return;}
+ if(!data?.eligible){msg.textContent='Seu cadastro está confirmado como espectador. Esta revelação é exclusiva dos participantes do sorteio.';return;}
+ checkinNumber=data.number;box.textContent=String(checkinNumber).padStart(2,'0');box.style.display='flex';
+ requestAnimationFrame(()=>{box.style.opacity='1';box.style.filter='blur(0)';box.style.transform='scale(1)';});
+ msg.textContent='Número revelado! Guarde essa informação para a etapa do sorteio.';
+}
 function renderEventStage(){
  const isPresentation=currentStage>=1&&currentStage<=3;
- const isAfterPresentation=currentStage>=4;
+ const isNumberReveal=currentStage===4;\n const isAfterPresentation=currentStage>=5;
  document.getElementById('timerHeading').classList.toggle('hidden',currentStage!==0);
  document.getElementById('eventTimer').classList.toggle('hidden',currentStage!==0);
  document.getElementById('timerNote').classList.toggle('hidden',currentStage!==0);
  document.getElementById('waitPrize').classList.toggle('hidden',currentStage!==0);
  document.getElementById('waitBottom').classList.toggle('hidden',currentStage!==0);
- document.getElementById('presentationBox').classList.toggle('hidden',!isPresentation);
+ document.getElementById('presentationBox').classList.toggle('hidden',!isPresentation);\n document.getElementById('numberRevealBox').classList.toggle('hidden',!isNumberReveal);
  document.getElementById('waitStatus').classList.toggle('hidden',isPresentation);
  if(isPresentation){
    if(slideHandle)clearInterval(slideHandle);
@@ -193,8 +211,8 @@ function renderEventStage(){
  }else if(slideHandle){clearInterval(slideHandle);slideHandle=null;}
  if(isAfterPresentation){
    document.getElementById('waitStatus').classList.remove('hidden');
-   document.getElementById('waitState').textContent=currentStage===4?'PREPARAÇÃO DO SORTEIO':'SORTEIO EM ANDAMENTO';
-   document.getElementById('waitDescription').textContent=currentStage===4?'As apresentações foram concluídas. A organização está preparando o sorteio.':'Acompanhe o resultado anunciado pela organização.';
+   document.getElementById('waitState').textContent=currentStage===5?'ETAPA DO SORTEIO':'RESULTADO DO SORTEIO';
+   document.getElementById('waitDescription').textContent=currentStage===5?'Acompanhe o sorteio. O administrador informará o número sorteado.':'Acompanhe o resultado anunciado pela organização.';
  }
 }
 function renderCountdown(){
@@ -237,7 +255,7 @@ form.addEventListener('submit',async ev=>{
  if(fullName.length<3){show('Informe seu nome completo.',true);return;}
  if(cpf.length!==11){show('Confira o CPF informado.',true);return;}
  if(!choice){show('Selecione SIM ou NÃO para o sorteio.',true);return;}
- submit.disabled=true;submit.textContent='REGISTRANDO CHECK-IN…';message.className='message';
+ checkinCpf=cpf; submit.disabled=true;submit.textContent='REGISTRANDO CHECK-IN…';message.className='message';
  const {data,error}=await db.rpc('register_event_checkin',{p_full_name:fullName,p_cpf:cpf,p_wants_raffle:choice.value==='yes'});
  if(error){show(error.message||'Não foi possível registrar seu check-in. Procure a organização.',true);submit.disabled=false;submit.textContent='CONFIRMAR CHEGADA  →';return;}
  form.querySelectorAll('input').forEach(el=>el.disabled=true);
