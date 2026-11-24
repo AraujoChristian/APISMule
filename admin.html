@@ -122,7 +122,7 @@ body:not(.is-admin) .wrap{display:none!important}
 <div class="card">
 <h2>Liberação dos números</h2>
 <p class="muted">Os participantes só verão seus números quando você liberar todos simultaneamente.</p>
-<div class="row"><strong id="numberReleaseStatus" class="tag gray">Números ocultos</strong><button class="primary" id="releaseNumbers">Liberar números para todos</button></div>
+<div class="row"><strong id="numberReleaseStatus" class="tag gray">Números ocultos</strong><button class="primary" id="releaseNumbers">Iniciar revelação</button></div>
 </div>
 <div class="card">
 <h2>Horário previsto de início</h2>
@@ -180,7 +180,7 @@ body:not(.is-admin) .wrap{display:none!important}
 <button class="secondary" id="phaseJuly">1 · Iniciação — Julho</button>
 <button class="secondary" id="phaseAugust">2 · Reestruturação — Agosto</button>
 <button class="secondary" id="phaseSeptember">3 · Conquista — Setembro</button>
-<button class="primary" id="revealNumbers">4 · Revelar números</button>
+<button class="primary" id="revealNumbers">4 · Sala de espera da revelação</button>
 </div>
 <div id="presentationContent" class="notice">Aguardando o administrador iniciar as apresentações após a contagem regressiva.</div>
 <details class="asset-manager">
@@ -379,7 +379,7 @@ async function loadRemote() {
   byId('numberReleaseStatus').textContent=settings.numbers_released?'Números liberados':'Números ocultos';
   byId('numberReleaseStatus').className='tag '+(settings.numbers_released?'':'gray');
   byId('releaseNumbers').disabled=!!settings.numbers_released;
-  byId('releaseNumbers').textContent=settings.numbers_released?'Números já liberados':'Liberar números para todos';
+  byId('releaseNumbers').textContent=settings.numbers_released?'Revelação já iniciada':'Iniciar revelação';
   stage=settings.current_stage||0;
   started=stage>0||people.length>0;
   winner=null;
@@ -428,7 +428,7 @@ byId('confirmImport').onclick=async()=>{
 };
 byId('releaseNumbers').onclick=async()=>{
   if(!confirm('Confirma liberar os números para todos os participantes ao mesmo tempo?'))return;
-  try{await saveSettings({numbers_released:true});await loadRemote();alert('Números liberados para todos os participantes.');}
+  try{await saveSettings({current_stage:4,numbers_released:true});await loadRemote();alert('Revelação iniciada. Cada participante verá somente o próprio número.');}
   catch(e){alert('Não foi possível liberar: '+e.message);}
 };
 byId('openRegistrations').onclick=async()=>{
