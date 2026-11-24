@@ -213,7 +213,7 @@ function renderEventStage(){
  if(isPresentation){
    if(slideHandle)clearInterval(slideHandle);
    slideIndex=0;renderPresentationCard();
-   slideHandle=setInterval(()=>{slideIndex=(slideIndex+1)%3;renderPresentationCard();},7000);
+   slideHandle=setInterval(()=>{slideIndex=(slideIndex+1)%3;renderPresentationCard();},5000);
  }else if(slideHandle){clearInterval(slideHandle);slideHandle=null;}
  if(isNumberReveal){
    document.getElementById('numberRevealMessage').textContent=numbersReleased?'Os números foram liberados. Confira o seu!':'Está ansioso? Seu número está quase chegando… A organização está preparando a grande revelação. Fique nesta tela: todos os participantes receberão seus números ao mesmo tempo!';
