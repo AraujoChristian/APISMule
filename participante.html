@@ -61,7 +61,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 .presentation-box{margin:22px 0 16px}.presentation-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#ff737a;font-size:10px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.presentation-slide{min-height:330px;padding:22px 18px;border:1px solid #ffffff25;border-top:4px solid #d71920;border-radius:16px;background:radial-gradient(circle at 85% 10%,#562027 0,transparent 40%),linear-gradient(145deg,#202228,#111216);box-shadow:0 18px 48px #0006;display:flex;flex-direction:column;justify-content:center;text-align:center;animation:slideIn .45s ease}.presentation-art{padding:22px 10px;margin-bottom:24px;border-radius:11px;background:linear-gradient(110deg,#090a0c,#3d1116);font-weight:950;letter-spacing:2px;font-size:clamp(18px,5vw,25px);color:#fff}.presentation-art span{color:#ed1c24}.presentation-kicker{font-size:10px;letter-spacing:2px;color:#ff747b;font-weight:900}.presentation-slide h2{font-size:clamp(28px,6vw,42px);line-height:1.08;margin:12px 0 8px;color:#fff}.presentation-slide h3{font-size:14px;color:#ffb7bb;margin:0 0 12px}.presentation-slide p{font-size:13px;color:#d0d1d6;line-height:1.6;margin:0 auto;max-width:440px}.presentation-progress{height:4px;border-radius:8px;background:#ffffff20;margin-top:13px;overflow:hidden}.presentation-progress span{display:block;height:100%;width:33.333%;background:#e52b35;transition:width .25s}.presentation-footnote{text-align:center;color:#92959c;font-size:10px;margin:10px 0}.hidden{display:none!important}@keyframes slideIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-.presentation-image{display:block;width:100%;aspect-ratio:3/4;height:auto;max-height:min(68vh,720px);object-fit:contain;border-radius:10px;background:#0d0e11;margin:0 auto;opacity:1;transform:translateY(0) scale(1);filter:blur(0);transition:opacity .7s ease,transform .7s ease,filter .7s ease}.presentation-image.is-changing{opacity:0;transform:translateY(12px) scale(.985);filter:blur(5px)}.presentation-image.hidden{display:none!important}.presentation-art,.presentation-kicker,#presentationTitle,#presentationSubtitle,#presentationDescription{display:none!important}.presentation-slide{padding:8px;background:#08090c}
+.presentation-image{display:block;width:100%;aspect-ratio:3/4;height:auto;max-height:min(68vh,720px);object-fit:contain;border-radius:10px;background:#0d0e11;margin:0 auto;opacity:1;transform:translateY(0) scale(1);filter:blur(0);transition:opacity 1.6s cubic-bezier(.22,.61,.36,1),transform 1.6s cubic-bezier(.22,.61,.36,1),filter 1.6s cubic-bezier(.22,.61,.36,1)}.presentation-image.is-changing{opacity:0;transform:translateY(12px) scale(.985);filter:blur(5px)}.presentation-image.hidden{display:none!important}.presentation-art,.presentation-kicker,#presentationTitle,#presentationSubtitle,#presentationDescription{display:none!important}.presentation-slide{padding:8px;background:#08090c}
 </style>
 </head>
 <body>
@@ -189,7 +189,7 @@ function renderEventStage(){
  if(isPresentation){
    if(slideHandle)clearInterval(slideHandle);
    slideIndex=0;renderPresentationCard();
-   slideHandle=setInterval(()=>{slideIndex=(slideIndex+1)%3;renderPresentationCard();},5000);
+   slideHandle=setInterval(()=>{slideIndex=(slideIndex+1)%3;renderPresentationCard();},7000);
  }else if(slideHandle){clearInterval(slideHandle);slideHandle=null;}
  if(isAfterPresentation){
    document.getElementById('waitStatus').classList.remove('hidden');
