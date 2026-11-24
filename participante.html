@@ -293,6 +293,7 @@ async function loadEventTime(){
  eventStartAt=data.event_start_time?new Date(data.event_start_time):null;
  currentStage=Number(data.current_stage||0);
  numbersReleased=!!data.numbers_released;
+ if(numbersReleased&&!revealAnimationAt)revealAnimationAt=Date.now();
  renderCountdown();renderEventStage();
 }
 
@@ -344,6 +345,7 @@ db.channel('public-event-settings')
   eventStartAt=payload.new.event_start_time?new Date(payload.new.event_start_time):null;
   currentStage=Number(payload.new.current_stage||0);
   numbersReleased=!!payload.new.numbers_released;
+  if(numbersReleased&&!numberDisplayed){const committed=Date.parse(payload.commit_timestamp||'');revealAnimationAt=Number.isFinite(committed)?committed+2500:Date.now()+500;}
   renderCountdown();renderEventStage();
  })
  .subscribe();
