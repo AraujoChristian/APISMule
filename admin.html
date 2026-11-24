@@ -229,6 +229,7 @@ body:not(.is-admin) header{display:none}
 <script>
 const $=id=>document.getElementById(id);
 let presentationAssetVersion=Date.now();
+let scheduledStartAt=null;
 let authorized=[], people=[], pending=[], imported=false, started=false, stage=0, winner=null, registrationsOpen=false;
 const stages=['Aguardando início','Apresentação de julho','Apresentação de agosto','Apresentação de setembro','Preparação do sorteio','Sorteio'];
 function save(){/* Dados oficiais são persistidos exclusivamente no Supabase. */}
@@ -287,7 +288,7 @@ $('startBtn').onclick=()=>{started=true;if(stage===0)stage=1;save();renderStage(
 $('prevBtn').onclick=()=>advance(-1);$('nextBtn').onclick=()=>advance(1);$('presBack').onclick=()=>advance(-1);$('presNext').onclick=()=>advance(1);
 $('backToPresentations').onclick=()=>{document.querySelector('[data-tab="dinamica"]').click()};
 $('startTime').onchange=save;
-function countdown(){let t=$('startTime').value;if(!t){$('countdown').textContent='Defina o horário';return}let [h,m]=t.split(':').map(Number),now=new Date(),target=new Date();target.setHours(h,m,0,0);if(target<now)target.setDate(target.getDate()+1);let sec=Math.max(0,Math.floor((target-now)/1000));$('countdown').textContent=sec===0?'Horário previsto atingido':`${Math.floor(sec/3600)}h ${Math.floor(sec%3600/60)}min ${sec%60}s`; }
+function countdown(){if(!scheduledStartAt||Number.isNaN(scheduledStartAt.getTime())){$('countdown').textContent='Defina o horário';return}const sec=Math.max(0,Math.floor((scheduledStartAt.getTime()-Date.now())/1000));$('countdown').textContent=sec===0?'Horário previsto atingido':`${Math.floor(sec/3600)}h ${Math.floor(sec%3600/60)}min ${sec%60}s`;}
 setInterval(countdown,1000);
 $('search').oninput=renderPeople;
 $('resetList').onclick=()=>{if(people.length){$('importMsg').textContent='A lista não pode ser limpa neste teste depois que já existem cadastros. Use “Limpar dados de demonstração” nas configurações do navegador se quiser reiniciar.';$('importMsg').classList.remove('hidden');return}authorized=[];pending=[];imported=false;save();stats();$('importMsg').classList.add('hidden')};
@@ -373,10 +374,9 @@ async function loadRemote() {
   }));
   imported=authorized.length>0;
   registrationsOpen=!!settings.registrations_open;
-  if(settings.event_start_time){
-    const eventDate=new Date(settings.event_start_time);
-    if(!Number.isNaN(eventDate.getTime())) byId('startTime').value=String(eventDate.getHours()).padStart(2,'0')+':'+String(eventDate.getMinutes()).padStart(2,'0');
-  }
+  scheduledStartAt=settings.event_start_time?new Date(settings.event_start_time):null;
+  if(scheduledStartAt&&!Number.isNaN(scheduledStartAt.getTime())) byId('startTime').value=String(scheduledStartAt.getHours()).padStart(2,'0')+':'+String(scheduledStartAt.getMinutes()).padStart(2,'0');
+  countdown();
   byId('numberReleaseStatus').textContent=settings.numbers_released?'Números liberados':'Números ocultos';
   byId('numberReleaseStatus').className='tag '+(settings.numbers_released?'':'gray');
   byId('releaseNumbers').disabled=!!settings.numbers_released;
@@ -487,7 +487,7 @@ byId('validateDraw').onclick=async()=>{
 };
 byId('resetList').onclick=()=>alert('A lista compartilhada não pode ser apagada por este botão. Faça alterações administrativas diretamente na lista oficial.');
 byId('startTime').onchange=async()=>{
-  try{const [h,m]=byId('startTime').value.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);await saveSettings({event_start_time:d.toISOString()});}
+  try{const [h,m]=byId('startTime').value.split(':').map(Number);const d=new Date();d.setHours(h,m,0,0);scheduledStartAt=d;countdown();await saveSettings({event_start_time:d.toISOString()});}
   catch(e){alert(e.message);}
 };
 async function boot(){
