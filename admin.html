@@ -348,7 +348,7 @@ if (location.hash.length > 1) {
 let remoteReady=false, refreshHandle=null;
 async function api(action,payload={}) {
   const response = await fetch(API, {
-    method:'POST', headers:{'Content-Type':'application/json'},
+    method:'POST', headers:{'Content-Type':'application/json','apikey':'sb_publishable_wy9r42UwShDgfaEsd7GBrQ_tBIzdUKa'},
     body:JSON.stringify({token,action,payload}), cache:'no-store'
   });
   const result = await response.json().catch(()=>({error:'Resposta inválida do servidor.'}));
