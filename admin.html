@@ -270,7 +270,7 @@ function renderStage(){
  $('stageLabel').textContent=stages[stage]||stages[0];
  $('stageCount').textContent='Etapa '+stage;
  $('stageCount').className='tag '+(stage?'':'gray');
- const content=stage===0?'Contagem regressiva / aguardando o administrador iniciar as apresentações.':stage===1?'Fase 1 — Iniciação (julho) liberada.':stage===2?'Fase 2 — Reestruturação (agosto) liberada.':stage===3?'Fase 3 — Conquista (setembro) liberada.':stage===4?'Preparação do sorteio liberada.':'Etapa do sorteio liberada.';
+ const content=stage===0?'Contagem regressiva / aguardando o administrador iniciar as apresentações.':stage===1?'Fase 1 — Iniciação (julho) liberada.':stage===2?'Fase 2 — Reestruturação (agosto) liberada.':stage===3?'Fase 3 — Conquista (setembro) liberada.':stage===4?'Revelação dos números liberada para todos os participantes.':'Etapa do sorteio liberada.';
  $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:stage===4?'Revelação dos números':'Aguardando';
  const active=stage>=1&&stage<=3?presentationCards[stage]:null;
  $('presentationContent').innerHTML=active
