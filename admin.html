@@ -471,7 +471,7 @@ async function setPresentationPhase(next){
  catch(e){alert('Não foi possível liberar a fase: '+e.message);}
 }
 byId('presBack').onclick=()=>setPresentationPhase(Math.max(1,stage-1));
-byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));\nbyId('revealNumbers').onclick=async()=>{try{await saveSettings({current_stage:4});stage=4;started=true;renderStage();}catch(e){alert('Não foi possível liberar a revelação: '+e.message);}};
+byId('presNext').onclick=()=>setPresentationPhase(Math.min(3,stage+1));\nbyId('revealNumbers').onclick=async()=>{try{await saveSettings({current_stage:4,numbers_released:false});stage=4;started=true;renderStage();}catch(e){alert('Não foi possível abrir a sala de espera da revelação: '+e.message);}};
 byId('phaseJuly').onclick=()=>setPresentationPhase(1);
 byId('phaseAugust').onclick=()=>setPresentationPhase(2);
 byId('phaseSeptember').onclick=()=>setPresentationPhase(3);
