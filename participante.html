@@ -61,7 +61,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 .presentation-box{margin:22px 0 16px}.presentation-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#ff737a;font-size:10px;font-weight:900;letter-spacing:1px;margin-bottom:12px}.presentation-slide{min-height:330px;padding:22px 18px;border:1px solid #ffffff25;border-top:4px solid #d71920;border-radius:16px;background:radial-gradient(circle at 85% 10%,#562027 0,transparent 40%),linear-gradient(145deg,#202228,#111216);box-shadow:0 18px 48px #0006;display:flex;flex-direction:column;justify-content:center;text-align:center;animation:slideIn .45s ease}.presentation-art{padding:22px 10px;margin-bottom:24px;border-radius:11px;background:linear-gradient(110deg,#090a0c,#3d1116);font-weight:950;letter-spacing:2px;font-size:clamp(18px,5vw,25px);color:#fff}.presentation-art span{color:#ed1c24}.presentation-kicker{font-size:10px;letter-spacing:2px;color:#ff747b;font-weight:900}.presentation-slide h2{font-size:clamp(28px,6vw,42px);line-height:1.08;margin:12px 0 8px;color:#fff}.presentation-slide h3{font-size:14px;color:#ffb7bb;margin:0 0 12px}.presentation-slide p{font-size:13px;color:#d0d1d6;line-height:1.6;margin:0 auto;max-width:440px}.presentation-progress{height:4px;border-radius:8px;background:#ffffff20;margin-top:13px;overflow:hidden}.presentation-progress span{display:block;height:100%;width:33.333%;background:#e52b35;transition:width .25s}.presentation-footnote{text-align:center;color:#92959c;font-size:10px;margin:10px 0}.hidden{display:none!important}@keyframes slideIn{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-.presentation-image{display:block;width:100%;max-height:390px;object-fit:contain;border-radius:10px;background:#0d0e11;margin:0 auto 18px}.presentation-image.hidden{display:none!important}
+.presentation-image{display:block;width:100%;height:min(68vh,720px);max-height:720px;object-fit:contain;border-radius:10px;background:#0d0e11;margin:0 auto}.presentation-image.hidden{display:none!important}.presentation-art,.presentation-kicker,#presentationTitle,#presentationSubtitle,#presentationDescription{display:none!important}.presentation-slide{padding:8px;background:#08090c}
 </style>
 </head>
 <body>
@@ -122,7 +122,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <p id="presentationDescription">O ponto de partida da jornada.</p>
       </article>
       <div class="presentation-progress"><span id="presentationProgress"></span></div>
-      <p class="presentation-footnote">Apresentação automática · transição a cada 5 segundos</p>
+      
     </section>
     <div class="wait-prize" id="waitPrize"><div class="bike-art">🏍️</div><div><strong>SORTEIO · 2 MOTOS · HONDA ELITE 125</strong><small>Continue nesta tela para acompanhar a contagem regressiva e as atualizações da organização.</small></div></div>
     <div class="wait-bottom" id="waitBottom">AGUARDANDO O INÍCIO DA PREMIAÇÃO</div>
