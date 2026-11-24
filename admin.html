@@ -231,8 +231,8 @@ const $=id=>document.getElementById(id);
 let presentationAssetVersion=Date.now();
 let authorized=[], people=[], pending=[], imported=false, started=false, stage=0, winner=null, registrationsOpen=false;
 const stages=['Aguardando início','Apresentação de julho','Apresentação de agosto','Apresentação de setembro','Preparação do sorteio','Sorteio'];
-function save(){try{localStorage.setItem('bh_demo_v1',JSON.stringify({authorized,people,imported,started,stage,winner,registrationsOpen,startTime:$('startTime').value}))}catch(e){}}
-function load(){try{let d=JSON.parse(localStorage.getItem('bh_demo_v1')||'{}');authorized=d.authorized||[];people=d.people||[];imported=!!d.imported;started=!!d.started;stage=d.stage||0;winner=d.winner||null;registrationsOpen=!!d.registrationsOpen;if(d.startTime)$('startTime').value=d.startTime}catch(e){}}
+function save(){/* Dados oficiais são persistidos exclusivamente no Supabase. */}
+function load(){/* Não restaurar estado demonstrativo local; loadRemote() carrega a fonte oficial. */}
 function stats(){
  const registered=people.filter(p=>p.type==='Participante').length;
  $('statAut').textContent=authorized.length;$('statCad').textContent=registered;
@@ -271,7 +271,7 @@ function renderStage(){
  $('stageLabel').textContent=stages[stage]||stages[0];
  $('stageCount').textContent='Etapa '+stage;
  $('stageCount').className='tag '+(stage?'':'gray');
- const content=stage===0?'Contagem regressiva / aguardando o administrador iniciar as apresentações.':stage===1?'Fase 1 — Iniciação (julho) liberada.':stage===2?'Fase 2 — Reestruturação (agosto) liberada.':stage===3?'Fase 3 — Conquista (setembro) liberada.':stage===4?'Revelação dos números liberada para todos os participantes.':'Etapa do sorteio liberada.';
+ const content=stage===0?'Contagem regressiva / aguardando o administrador iniciar as apresentações.':stage===1?'Fase 1 — Iniciação (julho) liberada.':stage===2?'Fase 2 — Reestruturação (agosto) liberada.':stage===3?'Fase 3 — Conquista (setembro) liberada.':stage===4?'Sala de espera da revelação aberta. Os números permanecem ocultos até a liberação simultânea.':'Etapa do sorteio liberada.';
  $('presentationTag').textContent=stage>=1&&stage<=3?['','Iniciação · Julho','Reestruturação · Agosto','Conquista · Setembro'][stage]:stage===4?'Revelação dos números':'Aguardando';
  const active=stage>=1&&stage<=3?presentationCards[stage]:null;
  $('presentationContent').innerHTML=active
